@@ -20,8 +20,8 @@ export const metadata: Metadata = {
 
 const stats = [
   { value: '$50M+', label: 'In opportunities influenced' },
-  { value: '25+', label: 'Partnerships closed' },
-  { value: '4', label: 'Products shipped — and counting' },
+  { value: '100+', label: 'Partnerships built' },
+  { value: '10', label: 'Products shipped' },
 ];
 
 const work = [
