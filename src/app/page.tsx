@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import LogoStrip from './LogoStrip';
 
 export const metadata: Metadata = {
@@ -86,9 +87,9 @@ function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#06060B]/80 backdrop-blur-md border-b border-[#1f1f28]/50">
       <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-        <a href="/" className="text-[#fafafa] text-sm font-semibold tracking-tight">
+        <Link href="/" className="text-[#fafafa] text-sm font-semibold tracking-tight">
           Taborlin
-        </a>
+        </Link>
         <div className="flex items-center gap-6 sm:gap-8">
           <a href="#work" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
             Work
