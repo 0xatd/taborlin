@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import LogoStrip from './LogoStrip';
 
 export const metadata: Metadata = {
-  title: 'Taborlin — Software, Data, and AI',
+  title: 'Taborlin — Agent-Operated Software Products',
   description:
-    'Building products and closing enterprise deals across software, data, and AI. $50M+ in opportunities influenced. Multiple products shipped from zero.',
+    'Building agent-operated software products across AI, content, revenue operations, and compute infrastructure.',
   openGraph: {
-    title: 'Taborlin — Software, Data, and AI',
+    title: 'Taborlin — Agent-Operated Software Products',
     description:
-      'Building products and closing enterprise deals across software, data, and AI.',
+      'Building agent-operated software products across AI, content, revenue operations, and compute infrastructure.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -26,36 +27,36 @@ const stats = [
 
 const work = [
   {
-    title: 'Atlas',
-    label: 'AI-Powered Outbound Engine',
-    url: 'https://atlas.taborlin.co',
+    title: 'Factory',
+    label: 'Composable Content Machine',
+    url: 'https://factory.taborlin.co',
     status: 'Active',
     description:
-      'Monitors social platforms and online communities to find people actively mentioning a target problem or topic. Surfaces high-intent signals and turns them into outbound opportunities — lead generation, distribution, and partnership pipeline on autopilot.',
+      'Saga-backed content-production OS for books, scripts, YouTube channels, social growth, asset packages, QA gates, approvals, and publishing workflows. Built so creators can combine content capabilities instead of managing scattered tools.',
+  },
+  {
+    title: 'Saga',
+    label: 'Agent App Foundation',
+    url: 'https://saga.taborlin.co/app',
+    status: 'Active',
+    description:
+      'Postgres-backed app foundation for durable workspaces, app objects, approvals, outputs, assets, memory, events, audit trails, and agent-operated workflows. The shared backbone beneath Factory and other vertical apps.',
   },
   {
     title: 'CheapTokens',
     label: 'AI Compute Marketplace',
     url: 'https://cheaptokens.ai',
-    status: 'Shipped',
+    status: 'Active',
     description:
-      'AI credit marketplace with daily auctions and real-time bidding. Designed the product, pricing mechanics, and payment infrastructure from scratch. Onboarding early users and partners.',
+      'Discounted Venice-compatible API credits paid with USDC/x402. Checkout, settlement verification, API key issuance, account balance, and reconciliation are built as a real-money production surface.',
   },
   {
-    title: 'Spatix',
-    label: 'Mapping Platform for AI Agents',
-    url: 'https://spatix.io',
-    status: 'In development',
+    title: 'Champion',
+    label: 'Revenue Memory Layer',
+    url: 'https://champion-vert.vercel.app',
+    status: 'Reference app',
     description:
-      'Map creation platform built for AI agents and non-technical users. Designed to make geospatial data accessible without GIS expertise — upload data, generate maps, embed or share.',
-  },
-  {
-    title: 'GISTools',
-    label: 'Open Source GIS Software',
-    url: 'https://gistools.io',
-    status: 'Open source',
-    description:
-      'Free, browser-based GIS file conversion and spatial analysis tools. Built to capture students and knowledge workers searching for accessible geospatial software.',
+      'Portable sales and relationship-memory workspace for account research, MEDDICC context, next-best actions, follow-up drafts, and CRM handoff. A reference vertical for Saga-backed business workflows.',
   },
 ];
 
@@ -86,9 +87,9 @@ function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#06060B]/80 backdrop-blur-md border-b border-[#1f1f28]/50">
       <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-        <a href="/" className="text-[#fafafa] text-sm font-semibold tracking-tight">
+        <Link href="/" className="text-[#fafafa] text-sm font-semibold tracking-tight">
           Taborlin
-        </a>
+        </Link>
         <div className="flex items-center gap-6 sm:gap-8">
           <a href="#work" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
             Work
@@ -114,13 +115,13 @@ function Hero() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="animate-fade-in">
           <h1 className="text-[2.15rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-[#fafafa] tracking-tight leading-[1.18] sm:leading-[1.15]">
-            <span className="block">Building products and partnerships</span>
-            <span className="block text-[#a1a1aa]">across software, data, and AI.</span>
+            <span className="block">Building agent-operated products</span>
+            <span className="block text-[#a1a1aa]">across software, content, and AI.</span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
-            Taborlin ships products, structures enterprise deals, and executes go-to-market
-            strategy. $50M+ in opportunities influenced. Multiple products launched
-            from zero.
+            Taborlin ships production software, reusable app foundations, and AI-native
+            operating systems. Current work focuses on Saga, Factory, CheapTokens,
+            and revenue workflows that agents can run with human approval gates.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
@@ -165,7 +166,7 @@ function Work() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Selected Work</h2>
-          <p className="text-sm text-[#a1a1aa]">Products built and shipped from zero</p>
+          <p className="text-sm text-[#a1a1aa]">Active products and reference apps</p>
         </div>
         <div className="space-y-4">
           {work.map((item) => (
@@ -231,7 +232,7 @@ function Contact() {
         <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">Let&apos;s talk</h2>
         <p className="text-sm text-[#a1a1aa] mb-8 max-w-md mx-auto leading-relaxed">
           Open to partnerships, GTM, and operator roles where product
-          and commercial execution overlap.
+          and agent-operated software execution overlap.
         </p>
         <a
           href="mailto:hello@taborlin.co"

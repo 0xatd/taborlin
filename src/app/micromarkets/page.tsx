@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Micromarkets for Properties',
@@ -76,9 +77,9 @@ function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#06060B]/85 backdrop-blur-md border-b border-[#1f1f28]/50">
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-        <a href="/" className="text-[#fafafa] text-sm font-semibold tracking-tight">
+        <Link href="/" className="text-[#fafafa] text-sm font-semibold tracking-tight">
           Taborlin
-        </a>
+        </Link>
         <div className="flex items-center gap-5 sm:gap-7">
           <a href="#fit" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
             Fit
@@ -289,7 +290,7 @@ function Footer() {
       <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-xs text-[#a1a1aa]/40">&copy; 2026 Taborlin</p>
         <div className="flex gap-6 text-xs text-[#a1a1aa]/40">
-          <a href="/" className="hover:text-[#a1a1aa] transition-colors">Home</a>
+          <Link href="/" className="hover:text-[#a1a1aa] transition-colors">Home</Link>
           <a href="#fit" className="hover:text-[#a1a1aa] transition-colors">Fit</a>
           <a href="mailto:hello@taborlin.co" className="hover:text-[#a1a1aa] transition-colors">Email</a>
         </div>
