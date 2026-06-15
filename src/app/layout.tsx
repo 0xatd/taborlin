@@ -48,6 +48,7 @@ export default function RootLayout({
                 'Building agent-operated software products across AI, content, revenue operations, and compute infrastructure.',
               sameAs: [
                 'https://factory.taborlin.co',
+                'https://social-manager-eight.vercel.app',
                 'https://saga.taborlin.co/app',
                 'https://cheaptokens.ai',
                 'https://champion-vert.vercel.app',
