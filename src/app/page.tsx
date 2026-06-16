@@ -35,6 +35,14 @@ const work = [
       'Saga-backed content-production OS for books, scripts, YouTube channels, social growth, asset packages, QA gates, approvals, and publishing workflows. Built so creators can combine content capabilities instead of managing scattered tools.',
   },
   {
+    title: 'Social Manager',
+    label: 'Approval-Gated Social OS',
+    url: 'https://social-manager-eight.vercel.app',
+    status: 'Active',
+    description:
+      'Saga-backed social account manager for account strategy, draft queues, approvals, schedule views, publishing workers, watchdogs, metrics, and fail-closed external posting. Built for Taborlin and CheapTokens growth loops.',
+  },
+  {
     title: 'Saga',
     label: 'Agent App Foundation',
     url: 'https://saga.taborlin.co/app',
