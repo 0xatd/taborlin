@@ -37,10 +37,10 @@ const work = [
   {
     title: 'Social Manager',
     label: 'Approval-Gated Social OS',
-    url: 'https://social-manager-eight.vercel.app',
+    url: 'https://soshi.taborlin.co',
     status: 'Active',
     description:
-      'Saga-backed social account manager for account strategy, draft queues, approvals, schedule views, publishing workers, watchdogs, metrics, and fail-closed external posting. Built for Taborlin and CheapTokens growth loops.',
+      'Supabase-backed social account manager for account strategy, draft queues, approvals, schedule views, publishing workers, watchdogs, metrics, and fail-closed external posting. Built for Taborlin and CheapTokens growth loops.',
   },
   {
     title: 'Saga',
