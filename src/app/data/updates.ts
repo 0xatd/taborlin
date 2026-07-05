@@ -29,18 +29,18 @@ It's not a product we're selling. It's a tool we built because we needed it. Eve
     title: 'Launching CheapTokens',
     date: '2026-02-07',
     preview:
-      'A marketplace for discounted AI credits through daily auctions.',
+      'Discounted Venice-compatible API credits paid with USDC/x402.',
     description:
-      'Introducing CheapTokens — a marketplace for discounted Venice AI credits via daily auctions, built by Taborlin.',
+      'Introducing CheapTokens — discounted Venice-compatible API credits with on-chain USDC settlement, built by Taborlin.',
     content: `AI API costs add up fast. If you're building on top of large language models, inference isn't free — and for teams running thousands of requests a day, every dollar per million tokens matters. That's the problem CheapTokens solves.
 
-[CheapTokens](https://cheaptokens.ai) is a marketplace for discounted Venice AI credits. Every day we run auctions where users bid on credit bundles at prices below retail. The model is simple: buy credits for less, use them the same way you always would. No catches, no degraded service — just lower prices driven by market dynamics.
+[CheapTokens](https://cheaptokens.ai) sells discounted Venice-compatible API credits. The model is simple: pay with USDC on Base through x402, wait for confirmed settlement, and receive API access after the payment clears. No separate procurement dance, no hidden quality tier — just a leaner way to buy AI inference when discounted capacity is available.
 
-We built CheapTokens because we saw a gap between what AI providers charge at list price and what's possible with smarter distribution. Auctions create real price discovery, and buyers who are flexible on timing get rewarded with significant savings.
+We built CheapTokens because we saw a gap between what AI providers charge at list price and what's possible with smarter distribution. Buyers who can use flexible same-day or reserve-style capacity should not have to pay full retail for every request.
 
-The tech stack is deliberately lean — Next.js on the frontend, a real-time auction engine on the backend, and Stripe for payments. We designed the auction flow to be dead simple: see today's auction, place a bid, get your credits. No accounts required beyond email verification.
+The tech stack is deliberately lean: Next.js on the frontend, server-side settlement verification, Venice key issuance, and on-chain USDC receipts as the payment source of truth. The important rule is boring and strict: credits are issued only after settlement succeeds.
 
-We're starting with Venice AI credits and plan to expand to other providers as the marketplace grows. If you're spending on AI inference and want to stretch your budget further, check out [CheapTokens](https://cheaptokens.ai).`,
+We're starting with Venice-compatible API credits and plan to expand as the marketplace grows. If you're spending on AI inference and want to stretch your budget further, check out [CheapTokens](https://cheaptokens.ai).`,
   },
   {
     slug: 'why-taborlin',
