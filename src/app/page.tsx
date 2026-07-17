@@ -3,13 +3,13 @@ import Link from 'next/link';
 import LogoStrip from './LogoStrip';
 
 export const metadata: Metadata = {
-  title: 'Taborlin — Agent-Operated Software Products',
+  title: 'Taborlin — Agent-Run Software Products',
   description:
-    'Building agent-operated software products across AI, content, revenue operations, and compute infrastructure.',
+    'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
   openGraph: {
-    title: 'Taborlin — Agent-Operated Software Products',
+    title: 'Taborlin — Agent-Run Software Products',
     description:
-      'Building agent-operated software products across AI, content, revenue operations, and compute infrastructure.',
+      'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -20,51 +20,51 @@ export const metadata: Metadata = {
 };
 
 const stats = [
-  { value: '$50M+', label: 'In opportunities influenced' },
-  { value: '100+', label: 'Partnerships built' },
-  { value: '10', label: 'Products shipped' },
+  { value: 'Products', label: 'AI software that transacts, publishes, tracks, and learns' },
+  { value: 'Tools', label: 'Open-source utilities for agents, maps, and crypto records' },
+  { value: 'Ops', label: 'Approvals, audit trails, metrics, and production guardrails' },
 ];
 
 const work = [
   {
-    title: 'Factory',
-    label: 'Composable Content Machine',
-    url: 'https://factory.taborlin.co',
-    status: 'Active',
-    description:
-      'Saga-backed content-production OS for books, scripts, YouTube channels, social growth, asset packages, QA gates, approvals, and publishing workflows. Built so creators can combine content capabilities instead of managing scattered tools.',
-  },
-  {
-    title: 'Social Manager',
-    label: 'Approval-Gated Social OS',
-    url: 'https://soshi.taborlin.co',
-    status: 'Active',
-    description:
-      'Supabase-backed social account manager for account strategy, draft queues, approvals, schedule views, publishing workers, watchdogs, metrics, and fail-closed external posting. Built for Taborlin and CheapTokens growth loops.',
-  },
-  {
-    title: 'Saga',
-    label: 'Agent App Foundation',
-    url: 'https://saga.taborlin.co/app',
-    status: 'Active',
-    description:
-      'Postgres-backed app foundation for durable workspaces, app objects, approvals, outputs, assets, memory, events, audit trails, and agent-operated workflows. The shared backbone beneath Factory and other vertical apps.',
-  },
-  {
     title: 'CheapTokens',
-    label: 'AI Compute Marketplace',
+    label: 'Discounted Venice API credits',
     url: 'https://cheaptokens.ai',
-    status: 'Active',
+    status: 'Live product',
     description:
-      'Discounted Venice-compatible API credits paid with USDC/x402. Checkout, settlement verification, API key issuance, account balance, and reconciliation are built as a real-money production surface.',
+      'Buy credits, get a Venice-compatible API key, test it in the playground, and pay less for real inference usage. Built with x402, card settlement, key issuance, account flows, and reconciliation.',
   },
   {
     title: 'Champion',
-    label: 'Revenue Memory Layer',
-    url: 'https://champion-vert.vercel.app',
-    status: 'Reference app',
+    label: 'Personal sales agent',
+    url: 'https://champion.taborlin.co',
+    status: 'Live product',
     description:
-      'Portable sales and relationship-memory workspace for account research, MEDDICC context, next-best actions, follow-up drafts, and CRM handoff. A reference vertical for Saga-backed business workflows.',
+      'A portable revenue-memory workspace for AE and BD operators. Champion keeps account research, relationship context, follow-up, meeting prep, and stale-deal revival in one place.',
+  },
+  {
+    title: 'Soshi',
+    label: 'Approval-first social growth',
+    url: 'https://soshi.taborlin.co',
+    status: 'Live product',
+    description:
+      'Plan content, review AI-generated drafts, schedule posts, track replies, and keep growth loops moving without letting agents publish unchecked.',
+  },
+  {
+    title: 'Spatix',
+    label: 'AI-native maps',
+    url: 'https://spatix.io',
+    status: 'Open-source tool',
+    description:
+      'Maps in seconds, no GIS skills needed. Spatix turns files, geodata, and agent requests into shareable maps through a web app, API, and MCP surface.',
+  },
+  {
+    title: 'Open Crypto Tax Helper',
+    label: 'Agent-friendly crypto records',
+    url: 'https://onchain-wallets-dashboard.vercel.app',
+    status: 'Open-source tool',
+    description:
+      'Self-hosted wallet and transaction organizer for missing-cost-basis review. Agents can propose fixes; humans approve changes with audit history intact.',
   },
 ];
 
@@ -100,7 +100,7 @@ function Navbar() {
         </Link>
         <div className="flex items-center gap-6 sm:gap-8">
           <a href="#work" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
-            Work
+            Products
           </a>
           <a href="#capabilities" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden sm:block">
             Capabilities
@@ -123,20 +123,20 @@ function Hero() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="animate-fade-in">
           <h1 className="text-[2.15rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-[#fafafa] tracking-tight leading-[1.18] sm:leading-[1.15]">
-            <span className="block">Building agent-operated products</span>
-            <span className="block text-[#a1a1aa]">across software, content, and AI.</span>
+            <span className="block">Agent-run software products,</span>
+            <span className="block text-[#a1a1aa]">operated in the real world.</span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
-            Taborlin ships production software, reusable app foundations, and AI-native
-            operating systems. Current work focuses on Saga, Factory, CheapTokens,
-            and revenue workflows that agents can run with human approval gates.
+            Taborlin builds focused AI products with payments, approvals, metrics,
+            and production ops baked in. We launch systems that transact, publish,
+            track, and learn.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
               href="#work"
               className="text-sm text-[#06060B] bg-[#fafafa] hover:bg-[#e4e4e7] transition-colors px-5 py-2.5 rounded-md font-medium"
             >
-              See the work
+              See the products
             </a>
             <a
               href="mailto:hello@taborlin.co"
@@ -174,7 +174,7 @@ function Work() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Selected Work</h2>
-          <p className="text-sm text-[#a1a1aa]">Active products and reference apps</p>
+          <p className="text-sm text-[#a1a1aa]">The five links worth showing first</p>
         </div>
         <div className="space-y-4">
           {work.map((item) => (

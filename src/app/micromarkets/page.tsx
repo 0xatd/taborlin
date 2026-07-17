@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: 'Micromarkets for Properties',
   description:
     'A no-cost micromarket and smart vending program for offices, apartments, warehouses, schools, and community properties.',
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     title: 'Taborlin Micromarkets',
     description:
