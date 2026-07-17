@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: 'Updates',
   description:
     'Updates from Taborlin — on building products, partnerships, and going to market.',
+  robots: {
+    index: false,
+    follow: false,
+  },
   alternates: {
     canonical: 'https://taborlin.co/updates',
   },

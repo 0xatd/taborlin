@@ -50,6 +50,10 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.description,
+    robots: {
+      index: false,
+      follow: false,
+    },
     openGraph: {
       title: `${post.title} — Taborlin`,
       description: post.description,

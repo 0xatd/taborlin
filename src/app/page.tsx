@@ -173,8 +173,10 @@ function Work() {
     <section id="work" className="py-20 sm:py-24 border-t border-[#1f1f28]">
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Selected Work</h2>
-          <p className="text-sm text-[#a1a1aa]">The five links worth showing first</p>
+          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products & Tools</h2>
+          <p className="text-sm text-[#a1a1aa]">
+            The public portfolio, narrowed to the strongest live products and useful open-source tools.
+          </p>
         </div>
         <div className="space-y-4">
           {work.map((item) => (
