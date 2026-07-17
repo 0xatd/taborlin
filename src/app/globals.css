@@ -12,6 +12,7 @@
 body {
   background: var(--color-background);
   color: var(--color-foreground);
+  overflow-x: clip;
 }
 
 html {

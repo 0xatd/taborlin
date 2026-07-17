@@ -41,14 +41,14 @@ const companies: Company[] = [
   { name: 'Esri', logo: '/logos/esri.svg', wordmark: 'Esri' },
   { name: 'Orpheus AI', textClassName: 'font-semibold tracking-[0.04em]' },
   { name: 'DTN', logo: '/logos/dtn.svg' },
-  { name: 'Enline Energy', textClassName: 'font-semibold tracking-[0.04em]' },
+  { name: 'Enline Energy', logo: '/logos/enline.svg' },
   { name: 'Enterprise Holdings', logo: '/logos/enterpriseholdings.svg' },
   { name: 'Milsoft Utility Solutions', textClassName: 'font-bold tracking-[0.05em]' },
   { name: 'Grubhub', logo: '/logos/grubhub.svg' },
   { name: 'WeatherXM', logo: '/logos/weatherxm.png' },
   { name: 'Everbridge', logo: '/logos/everbridge.svg' },
   { name: 'American International Group', logo: '/logos/aig.svg' },
-  { name: 'Trueo', textClassName: 'font-semibold tracking-[0.04em]' },
+  { name: 'Trueo', fallback: 'TRUEO', textClassName: 'font-bold tracking-[0.12em]' },
 ];
 
 function LogoItem({ company }: { company: Company }) {
