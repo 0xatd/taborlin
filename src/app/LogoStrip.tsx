@@ -19,6 +19,8 @@ type Company = {
   logo?: string;
   /** Short text shown when the logo fails or is intentionally absent. */
   fallback?: string;
+  /** Optional text shown beside a mark when the icon alone is too ambiguous. */
+  wordmark?: string;
   /**
    * Tailwind classes layered on top of .logo-text for the text fallback
    * (used for brand-specific type treatments).
@@ -27,17 +29,16 @@ type Company = {
 };
 
 /**
- * Curated "selected companies worked with" list. Order here = visual
- * order in the scrolling strip. Text-fallback entries are deliberately
- * interleaved with image entries so they don't read as one run-on
- * paragraph of wordmarks.
+ * Curated commercial experience list. Order here = visual order in
+ * the scrolling strip. Text-fallback entries are deliberately interleaved
+ * with image entries so they don't read as one run-on paragraph of wordmarks.
  *
  * Logos live in public/logos/. The .logo-item CSS in globals.css
  * re-colors any source to muted off-white automatically, so source
  * color does not matter (as long as the background is transparent).
  */
 const companies: Company[] = [
-  { name: 'Esri', logo: '/logos/esri.svg' },
+  { name: 'Esri', logo: '/logos/esri.svg', wordmark: 'Esri' },
   { name: 'Orpheus AI', textClassName: 'font-semibold tracking-[0.04em]' },
   { name: 'DTN', logo: '/logos/dtn.svg' },
   { name: 'Enline Energy', textClassName: 'font-semibold tracking-[0.04em]' },
@@ -47,7 +48,7 @@ const companies: Company[] = [
   { name: 'WeatherXM', logo: '/logos/weatherxm.png' },
   { name: 'Everbridge', logo: '/logos/everbridge.svg' },
   { name: 'American International Group', logo: '/logos/aig.svg' },
-  { name: 'Trueo', logo: '/logos/trueo.png' },
+  { name: 'Trueo', textClassName: 'font-semibold tracking-[0.04em]' },
 ];
 
 function LogoItem({ company }: { company: Company }) {
@@ -75,15 +76,22 @@ function LogoItem({ company }: { company: Company }) {
   }
 
   return tooltip(
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={company.logo}
-      alt={company.name}
-      loading="lazy"
-      decoding="async"
-      onError={() => setFailed(true)}
-      className="logo-item"
-    />,
+    <span className="inline-flex items-center justify-center gap-2">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={company.logo}
+        alt={company.name}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+        className={company.wordmark ? 'logo-item logo-item-with-wordmark' : 'logo-item'}
+      />
+      {company.wordmark ? (
+        <span className={`logo-text select-none ${company.textClassName ?? ''}`}>
+          {company.wordmark}
+        </span>
+      ) : null}
+    </span>,
   );
 }
 
@@ -92,7 +100,7 @@ export default function LogoStrip() {
     <section className="pb-20 sm:pb-24">
       <div className="max-w-4xl mx-auto px-6 mb-8 text-center">
         <p className="text-xs text-[#a1a1aa]/40 uppercase tracking-widest">
-          Selected companies worked with
+          Commercial experience across
         </p>
       </div>
       {/*
