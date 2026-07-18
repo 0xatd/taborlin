@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import LogoStrip from './LogoStrip';
+import WindMode from './WindMode';
 
 export const metadata: Metadata = {
   title: 'Taborlin — Agent-Run Software Products',
@@ -122,9 +123,14 @@ function Hero() {
     <section className="pt-32 sm:pt-40 pb-16 sm:pb-20">
       <div className="max-w-4xl mx-auto px-6">
         <div className="animate-fade-in">
-          <h1 className="text-[2.15rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-[#fafafa] tracking-tight leading-[1.18] sm:leading-[1.15]">
-            <span className="block">Agent-run software products,</span>
-            <span className="block text-[#a1a1aa]">operated in the real world.</span>
+          <h1 className="text-[2rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-[#fafafa] tracking-tight leading-[1.18] sm:leading-[1.15]">
+            <span className="block">
+              <span className="block sm:inline">Agent-run</span>{' '}
+              <span className="block sm:inline">software products,</span>
+            </span>
+            <span className="block text-[#a1a1aa]">
+              operated in the <span className="block sm:inline">real world.</span>
+            </span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
             Taborlin builds focused AI products with payments, approvals, metrics,
@@ -272,9 +278,10 @@ function Footer() {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#06060B]">
+    <div className="relative isolate min-h-screen bg-[#06060B]">
+      <WindMode />
       <Navbar />
-      <main>
+      <main className="relative z-10">
         <Hero />
         <Stats />
         <LogoStrip />
@@ -282,7 +289,9 @@ export default function HomePage() {
         <Capabilities />
         <Contact />
       </main>
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 }
