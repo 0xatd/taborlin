@@ -162,6 +162,31 @@ html {
   opacity: 1;
 }
 
+.wind-mapbox {
+  pointer-events: none;
+}
+
+.wind-mapbox .mapboxgl-control-container,
+.wind-mapbox .mapboxgl-ctrl {
+  pointer-events: auto;
+}
+
+.wind-mapbox .mapboxgl-ctrl-logo,
+.wind-mapbox .mapboxgl-ctrl-attrib {
+  opacity: 0.42;
+}
+
+.wind-mapbox .mapboxgl-ctrl-attrib {
+  background: rgba(5, 6, 11, 0.72);
+  color: rgba(214, 237, 248, 0.72);
+  font-family: var(--font-geist-sans), Inter, sans-serif;
+  font-size: 10px;
+}
+
+.wind-mapbox .mapboxgl-ctrl-attrib a {
+  color: rgba(214, 237, 248, 0.86);
+}
+
 ::selection {
   background: rgba(59, 130, 246, 0.25);
   color: #fafafa;
