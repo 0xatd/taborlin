@@ -345,11 +345,21 @@ function MapboxBackdrop({
         map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
 
         const syncCameraMarker = () => {
-          const center = map?.getCenter();
-          container.dataset.zoom = map?.getZoom().toFixed(2) ?? '';
-          container.dataset.center = center
-            ? `${center.lng.toFixed(3)},${center.lat.toFixed(3)}`
-            : '';
+          if (!map) {
+            container.dataset.zoom = '';
+            container.dataset.center = '';
+            return;
+          }
+
+          try {
+            const center = map.getCenter();
+            const zoom = map.getZoom();
+            container.dataset.zoom = Number.isFinite(zoom) ? zoom.toFixed(2) : '';
+            container.dataset.center = `${center.lng.toFixed(3)},${center.lat.toFixed(3)}`;
+          } catch {
+            container.dataset.zoom = '';
+            container.dataset.center = '';
+          }
         };
         syncCameraMarker();
         map.on('move', syncCameraMarker);
@@ -378,14 +388,18 @@ function MapboxBackdrop({
 
           event.preventDefault();
 
-          const currentZoom = map.getZoom();
-          const nextZoom = Math.min(5.8, Math.max(1.65, currentZoom - event.deltaY * 0.0032));
-          map.easeTo({
-            zoom: nextZoom,
-            around: map.unproject([event.clientX, event.clientY]),
-            duration: 90,
-          });
-          syncCameraMarker();
+          try {
+            const currentZoom = map.getZoom();
+            const nextZoom = Math.min(5.8, Math.max(1.65, currentZoom - event.deltaY * 0.0032));
+            map.easeTo({
+              zoom: nextZoom,
+              around: map.unproject([event.clientX, event.clientY]),
+              duration: 90,
+            });
+            syncCameraMarker();
+          } catch {
+            // Leave page scrolling passive if Mapbox is not ready to receive camera updates.
+          }
         };
 
         const stopDrag = () => {
@@ -421,9 +435,13 @@ function MapboxBackdrop({
           const deltaY = event.clientY - dragState.y;
 
           if (deltaX || deltaY) {
-            map.panBy([-deltaX, -deltaY], { duration: 0 });
-            dragState = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
-            syncCameraMarker();
+            try {
+              map.panBy([-deltaX, -deltaY], { duration: 0 });
+              dragState = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+              syncCameraMarker();
+            } catch {
+              stopDrag();
+            }
           }
         };
 
