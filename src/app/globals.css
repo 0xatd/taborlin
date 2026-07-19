@@ -166,6 +166,10 @@ html {
   pointer-events: none;
 }
 
+.wind-mapbox .mapboxgl-canvas {
+  filter: contrast(1.15) saturate(0.72) brightness(0.92);
+}
+
 .wind-mapbox .mapboxgl-control-container,
 .wind-mapbox .mapboxgl-ctrl {
   pointer-events: auto;
@@ -181,6 +185,10 @@ html {
   color: rgba(214, 237, 248, 0.72);
   font-family: var(--font-geist-sans), Inter, sans-serif;
   font-size: 10px;
+}
+
+.wind-mapbox .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-attrib {
+  margin-left: 84px;
 }
 
 .wind-mapbox .mapboxgl-ctrl-attrib a {

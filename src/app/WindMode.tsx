@@ -1,6 +1,7 @@
 'use client';
 
 import type { Map as MapboxMap } from 'mapbox-gl';
+import type { MutableRefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 type WindPoint = {
@@ -73,7 +74,7 @@ const SAMPLE_FALLBACK: WindPoint[] = [
   { lat: 30, lon: -121, speedMph: 10, directionDegrees: 300 },
 ];
 
-const DEFAULT_MAPBOX_STYLE_URL = 'mapbox://styles/mapbox/satellite-streets-v12';
+const DEFAULT_MAPBOX_STYLE_URL = 'mapbox://styles/mapbox/dark-v11';
 const EMBEDDED_MAPBOX_CONFIG: MapboxConfig | null = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
   ? {
       token: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
@@ -91,6 +92,36 @@ function unproject(x: number, y: number, width: number, height: number) {
   const lon = EXTENT.minLon + (x / width) * (EXTENT.maxLon - EXTENT.minLon);
   const lat = EXTENT.maxLat - (y / height) * (EXTENT.maxLat - EXTENT.minLat);
   return { lon, lat };
+}
+
+function projectForView(
+  map: MapboxMap | null,
+  lon: number,
+  lat: number,
+  width: number,
+  height: number,
+) {
+  if (map) {
+    const point = map.project([lon, lat]);
+    return { x: point.x, y: point.y };
+  }
+
+  return project(lon, lat, width, height);
+}
+
+function unprojectForView(
+  map: MapboxMap | null,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  if (map) {
+    const point = map.unproject([x, y]);
+    return { lon: point.lng, lat: point.lat };
+  }
+
+  return unproject(x, y, width, height);
 }
 
 function drawPath(
@@ -191,7 +222,7 @@ function resetParticle(particle: Particle, width: number, height: number) {
   particle.x = Math.random() * width;
   particle.y = Math.random() * height;
   particle.age = 0;
-  particle.maxAge = 80 + Math.floor(Math.random() * 90);
+  particle.maxAge = 130 + Math.floor(Math.random() * 130);
 }
 
 function drawStaticWind(
@@ -199,14 +230,15 @@ function drawStaticWind(
   points: WindPoint[],
   width: number,
   height: number,
+  map: MapboxMap | null,
 ) {
   ctx.save();
-  ctx.strokeStyle = 'rgba(143, 211, 255, 0.52)';
-  ctx.fillStyle = 'rgba(143, 211, 255, 0.65)';
-  ctx.lineWidth = 1.4;
+  ctx.strokeStyle = 'rgba(205, 240, 255, 0.76)';
+  ctx.fillStyle = 'rgba(205, 240, 255, 0.84)';
+  ctx.lineWidth = 1.6;
 
   points.forEach((point) => {
-    const start = project(point.lon, point.lat, width, height);
+    const start = projectForView(map, point.lon, point.lat, width, height);
     const radians = (point.directionDegrees * Math.PI) / 180;
     const length = 12 + Math.min(26, point.speedMph);
     const dx = -Math.sin(radians) * length;
@@ -247,9 +279,11 @@ function useReducedMotion() {
 function MapboxBackdrop({
   config,
   onReady,
+  mapRef,
 }: {
   config: MapboxConfig | null;
   onReady: (ready: boolean) => void;
+  mapRef: MutableRefObject<MapboxMap | null>;
 }) {
   const mapNodeRef = useRef<HTMLDivElement>(null);
 
@@ -288,10 +322,18 @@ function MapboxBackdrop({
           bearing: 0,
           pitch: 0,
           interactive: false,
-          attributionControl: true,
+          attributionControl: false,
           logoPosition: 'bottom-left',
           fadeDuration: 0,
         });
+        mapRef.current = map;
+        map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
+
+        const syncZoomMarker = () => {
+          container.dataset.zoom = map?.getZoom().toFixed(2) ?? '';
+        };
+        syncZoomMarker();
+        map.on('move', syncZoomMarker);
 
         const markReady = () => {
           if (!cancelled) {
@@ -310,6 +352,28 @@ function MapboxBackdrop({
 
         window.addEventListener('resize', handleResize);
         cleanupResize = () => window.removeEventListener('resize', handleResize);
+
+        const handleWheel = (event: WheelEvent) => {
+          if (!map || (!event.ctrlKey && !event.metaKey)) return;
+
+          event.preventDefault();
+
+          const currentZoom = map.getZoom();
+          const nextZoom = Math.min(5.8, Math.max(1.65, currentZoom - event.deltaY * 0.0032));
+          map.easeTo({
+            zoom: nextZoom,
+            around: map.unproject([event.clientX, event.clientY]),
+            duration: 90,
+          });
+          syncZoomMarker();
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: false });
+        const cleanupExisting = cleanupResize;
+        cleanupResize = () => {
+          cleanupExisting?.();
+          window.removeEventListener('wheel', handleWheel);
+        };
       })
       .catch(() => {
         if (!cancelled) {
@@ -321,16 +385,17 @@ function MapboxBackdrop({
       cancelled = true;
       cleanupResize?.();
       map?.remove();
+      mapRef.current = null;
       onReady(false);
     };
-  }, [config, onReady]);
+  }, [config, mapRef, onReady]);
 
   if (!config) return null;
 
   return (
     <div
       ref={mapNodeRef}
-      className="wind-mapbox absolute inset-0 h-full w-full opacity-80"
+      className="wind-mapbox absolute inset-0 h-full w-full opacity-95"
       aria-hidden="true"
     />
   );
@@ -339,9 +404,11 @@ function MapboxBackdrop({
 function WindCanvas({
   points,
   useFallbackMap,
+  mapRef,
 }: {
   points: WindPoint[];
   useFallbackMap: boolean;
+  mapRef: MutableRefObject<MapboxMap | null>;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
@@ -373,9 +440,9 @@ function WindCanvas({
         context.clearRect(0, 0, width, height);
       }
 
-      const count = Math.min(190, Math.max(90, Math.floor((width * height) / 9000)));
+      const count = Math.min(720, Math.max(190, Math.floor((width * height) / 2400)));
       particlesRef.current = Array.from({ length: count }, () => {
-        const particle = { x: 0, y: 0, age: 0, maxAge: 120 };
+        const particle = { x: 0, y: 0, age: 0, maxAge: 160 };
         resetParticle(particle, width, height);
         return particle;
       });
@@ -388,27 +455,32 @@ function WindCanvas({
         } else {
           context.clearRect(0, 0, width, height);
         }
-        drawStaticWind(context, points, width, height);
+        drawStaticWind(context, points, width, height, mapRef.current);
         return;
       }
 
       if (useFallbackMap) {
         drawBaseMap(context, width, height);
       } else {
-        context.clearRect(0, 0, width, height);
+        context.save();
+        context.globalCompositeOperation = 'destination-out';
+        context.fillStyle = 'rgba(0, 0, 0, 0.052)';
+        context.fillRect(0, 0, width, height);
+        context.restore();
       }
 
-      context.lineWidth = 1;
+      context.lineCap = 'round';
+      context.lineWidth = useFallbackMap ? 1.15 : 1.25;
       context.strokeStyle = useFallbackMap
-        ? 'rgba(142, 210, 255, 0.46)'
-        : 'rgba(153, 221, 255, 0.68)';
+        ? 'rgba(174, 226, 255, 0.58)'
+        : 'rgba(213, 244, 255, 0.78)';
 
       particlesRef.current.forEach((particle) => {
         const previousX = particle.x;
         const previousY = particle.y;
-        const location = unproject(particle.x, particle.y, width, height);
+        const location = unprojectForView(mapRef.current, particle.x, particle.y, width, height);
         const wind = nearestWind(points, location.lon, location.lat);
-        const factor = 0.23;
+        const factor = 0.28;
 
         particle.x += wind.x * factor;
         particle.y += wind.y * factor;
@@ -442,7 +514,7 @@ function WindCanvas({
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, [points, reducedMotion, useFallbackMap]);
+  }, [points, reducedMotion, useFallbackMap, mapRef]);
 
   return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
@@ -454,6 +526,7 @@ export default function WindMode() {
   const [mapboxConfig, setMapboxConfig] = useState<MapboxConfig | null>(null);
   const [mapboxReady, setMapboxReady] = useState(false);
   const mapboxRequestedRef = useRef(false);
+  const mapRef = useRef<MapboxMap | null>(null);
   const activeMapboxConfig = EMBEDDED_MAPBOX_CONFIG ?? mapboxConfig;
 
   useEffect(() => {
@@ -538,14 +611,14 @@ export default function WindMode() {
     <>
       {enabled ? (
         <div className="fixed inset-0 z-0 overflow-hidden bg-[#020711]">
-          <MapboxBackdrop config={activeMapboxConfig} onReady={setMapboxReady} />
-          <WindCanvas points={points} useFallbackMap={!mapboxReady} />
-          <div className="absolute inset-0 bg-[#05060b]/45" aria-hidden="true" />
+          <MapboxBackdrop config={activeMapboxConfig} onReady={setMapboxReady} mapRef={mapRef} />
+          <WindCanvas points={points} useFallbackMap={!mapboxReady} mapRef={mapRef} />
+          <div className="absolute inset-0 bg-[#05060b]/24" aria-hidden="true" />
           <div
-            className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(49,133,184,0.18),transparent_32%),radial-gradient(circle_at_68%_42%,rgba(8,27,42,0.36),transparent_38%)]"
+            className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(31,105,150,0.16),transparent_32%),radial-gradient(circle_at_68%_42%,rgba(5,18,29,0.24),transparent_38%)]"
             aria-hidden="true"
           />
-          <p className="absolute bottom-3 right-4 text-[10px] uppercase tracking-[0.18em] text-[#d6edf8]/35">
+          <p className="absolute bottom-9 left-3 text-[10px] uppercase tracking-[0.18em] text-[#d6edf8]/35">
             {payload?.source === 'Open-Meteo' ? (
               <>
                 Wind data:{' '}
