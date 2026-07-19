@@ -354,7 +354,6 @@ function WindCanvas({
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    let frame = 0;
     let width = 0;
     let height = 0;
     let raf = 0;
@@ -393,14 +392,8 @@ function WindCanvas({
         return;
       }
 
-      frame += 1;
-      if (useFallbackMap && frame % 180 === 1) {
-        drawBaseMap(context, width, height);
-      }
-
       if (useFallbackMap) {
-        context.fillStyle = 'rgba(2, 7, 17, 0.055)';
-        context.fillRect(0, 0, width, height);
+        drawBaseMap(context, width, height);
       } else {
         context.clearRect(0, 0, width, height);
       }
@@ -547,9 +540,9 @@ export default function WindMode() {
         <div className="fixed inset-0 z-0 overflow-hidden bg-[#020711]">
           <MapboxBackdrop config={activeMapboxConfig} onReady={setMapboxReady} />
           <WindCanvas points={points} useFallbackMap={!mapboxReady} />
-          <div className="absolute inset-0 bg-[#05060b]/64" aria-hidden="true" />
+          <div className="absolute inset-0 bg-[#05060b]/45" aria-hidden="true" />
           <div
-            className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(49,133,184,0.18),transparent_32%),radial-gradient(circle_at_68%_42%,rgba(8,27,42,0.54),transparent_38%)]"
+            className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(49,133,184,0.18),transparent_32%),radial-gradient(circle_at_68%_42%,rgba(8,27,42,0.36),transparent_38%)]"
             aria-hidden="true"
           />
           <p className="absolute bottom-3 right-4 text-[10px] uppercase tracking-[0.18em] text-[#d6edf8]/35">
@@ -570,16 +563,16 @@ export default function WindMode() {
       <button
         type="button"
         aria-pressed={enabled}
-        aria-label={enabled ? 'Disable Wind Mode' : 'Enable Wind Mode'}
-        title="Name the wind"
+        aria-label={enabled ? 'Disable wind background' : 'Enable wind background'}
+        title={enabled ? 'Disable wind background' : 'Enable wind background'}
         onClick={() => setEnabled((value) => !value)}
-        className={`fixed right-4 top-[4.25rem] z-[60] rounded-md border px-3 py-2 text-xs font-semibold tracking-[0.08em] backdrop-blur-md transition-colors sm:top-3 ${
+        className={`fixed right-4 top-[4.25rem] z-[60] flex h-10 w-10 items-center justify-center rounded-md border text-lg backdrop-blur-md transition-colors sm:top-3 ${
           enabled
             ? 'border-sky-300/45 bg-sky-300/12 text-sky-100 shadow-[0_0_24px_rgba(56,189,248,0.22)]'
             : 'border-[#2a2a35] bg-[#06060B]/72 text-[#a1a1aa] hover:border-[#3a3a45] hover:text-[#fafafa]'
         }`}
       >
-        Wind
+        <span aria-hidden="true">🌪️</span>
       </button>
     </>
   );

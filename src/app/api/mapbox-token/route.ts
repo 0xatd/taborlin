@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const DEFAULT_STYLE_URL = 'mapbox://styles/mapbox/dark-v11';
+const DEFAULT_STYLE_URL = 'mapbox://styles/mapbox/satellite-streets-v12';
 
 export async function GET() {
   const token = process.env.MAPBOX_PUBLIC_TOKEN ?? process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
