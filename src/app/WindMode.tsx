@@ -307,6 +307,7 @@ function MapboxBackdrop({
     let map: MapboxMap | null = null;
     let cleanupResize: (() => void) | null = null;
     let dragState: { pointerId: number; x: number; y: number } | null = null;
+    let touchState: { distance: number; x: number; y: number; zoom: number } | null = null;
 
     function viewportCamera() {
       return {
@@ -320,6 +321,21 @@ function MapboxBackdrop({
         target instanceof Element &&
         Boolean(target.closest('a, button, input, textarea, select, [role="button"]'))
       );
+    }
+
+    function touchGesture(touches: TouchList) {
+      if (touches.length !== 2) return null;
+
+      const first = touches[0];
+      const second = touches[1];
+      const x = (first.clientX + second.clientX) / 2;
+      const y = (first.clientY + second.clientY) / 2;
+      const distance = Math.max(
+        1,
+        Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY),
+      );
+
+      return { distance, x, y };
     }
 
     import('mapbox-gl')
@@ -407,6 +423,11 @@ function MapboxBackdrop({
           document.documentElement.classList.remove('wind-map-dragging');
         };
 
+        const stopTouch = () => {
+          touchState = null;
+          document.documentElement.classList.remove('wind-map-touching');
+        };
+
         const handlePointerDown = (event: PointerEvent) => {
           if (
             !map ||
@@ -445,11 +466,74 @@ function MapboxBackdrop({
           }
         };
 
+        const handleTouchStart = (event: TouchEvent) => {
+          if (!map || isInteractiveTarget(event.target)) return;
+
+          const gesture = touchGesture(event.touches);
+          if (!gesture) {
+            stopTouch();
+            return;
+          }
+
+          event.preventDefault();
+
+          try {
+            touchState = { ...gesture, zoom: map.getZoom() };
+            document.documentElement.classList.add('wind-map-touching');
+          } catch {
+            stopTouch();
+          }
+        };
+
+        const handleTouchMove = (event: TouchEvent) => {
+          if (!map || !touchState) return;
+
+          const gesture = touchGesture(event.touches);
+          if (!gesture) {
+            stopTouch();
+            return;
+          }
+
+          event.preventDefault();
+
+          try {
+            const deltaX = gesture.x - touchState.x;
+            const deltaY = gesture.y - touchState.y;
+            const zoomDelta = Math.log2(gesture.distance / touchState.distance) * 1.15;
+            const nextZoom = Math.min(5.8, Math.max(1.65, touchState.zoom + zoomDelta));
+
+            map.easeTo({
+              zoom: nextZoom,
+              around: map.unproject([gesture.x, gesture.y]),
+              duration: 0,
+            });
+
+            if (deltaX || deltaY) {
+              map.panBy([-deltaX, -deltaY], { duration: 0 });
+            }
+
+            touchState = { ...gesture, zoom: nextZoom };
+            syncCameraMarker();
+          } catch {
+            stopTouch();
+          }
+        };
+
+        const handleTouchEnd = (event: TouchEvent) => {
+          if (event.touches.length < 2) {
+            stopTouch();
+          }
+        };
+
         window.addEventListener('wheel', handleWheel, { passive: false });
         window.addEventListener('pointerdown', handlePointerDown, { passive: false });
         window.addEventListener('pointermove', handlePointerMove, { passive: false });
         window.addEventListener('pointerup', stopDrag);
         window.addEventListener('pointercancel', stopDrag);
+        window.addEventListener('touchstart', handleTouchStart, { passive: false });
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        window.addEventListener('touchend', handleTouchEnd);
+        window.addEventListener('touchcancel', stopTouch);
         window.addEventListener('blur', stopDrag);
         const cleanupExisting = cleanupResize;
         cleanupResize = () => {
@@ -459,8 +543,13 @@ function MapboxBackdrop({
           window.removeEventListener('pointermove', handlePointerMove);
           window.removeEventListener('pointerup', stopDrag);
           window.removeEventListener('pointercancel', stopDrag);
+          window.removeEventListener('touchstart', handleTouchStart);
+          window.removeEventListener('touchmove', handleTouchMove);
+          window.removeEventListener('touchend', handleTouchEnd);
+          window.removeEventListener('touchcancel', stopTouch);
           window.removeEventListener('blur', stopDrag);
           stopDrag();
+          stopTouch();
         };
       })
       .catch(() => {
@@ -725,20 +814,22 @@ export default function WindMode() {
     }
 
     const hideTimer = window.setTimeout(() => setShowInteractionHint(false), 7800);
-    const hideOnInteraction = (event: WheelEvent | PointerEvent) => {
-      if (event.ctrlKey || event.metaKey) {
+    const hideOnInteraction = (event: WheelEvent | PointerEvent | TouchEvent) => {
+      if ('touches' in event ? event.touches.length > 1 : event.ctrlKey || event.metaKey) {
         setShowInteractionHint(false);
       }
     };
 
     window.addEventListener('wheel', hideOnInteraction, { passive: true });
     window.addEventListener('pointerdown', hideOnInteraction, { passive: true });
+    window.addEventListener('touchstart', hideOnInteraction, { passive: true });
 
     return () => {
       window.clearTimeout(showTimer);
       window.clearTimeout(hideTimer);
       window.removeEventListener('wheel', hideOnInteraction);
       window.removeEventListener('pointerdown', hideOnInteraction);
+      window.removeEventListener('touchstart', hideOnInteraction);
     };
   }, [enabled]);
 
@@ -758,14 +849,21 @@ export default function WindMode() {
           />
           <WindCanvas points={points} useFallbackMap={!mapboxReady} mapRef={mapRef} />
           {showInteractionHint ? (
-            <div className="wind-interaction-hint pointer-events-none absolute right-4 top-[7.25rem] z-50 hidden items-center gap-2 rounded-md border border-sky-200/16 bg-[#05060b]/74 px-3 py-2 text-[11px] font-medium text-sky-100/70 shadow-[0_0_28px_rgba(56,189,248,0.16)] backdrop-blur-md sm:flex">
-              <span className="rounded border border-sky-100/18 bg-sky-100/8 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-sky-100/80">
+            <div className="wind-interaction-hint pointer-events-none absolute right-3 top-[7.25rem] z-50 flex items-center gap-2 rounded-md border border-sky-200/16 bg-[#05060b]/74 px-3 py-2 text-[10px] font-medium text-sky-100/70 shadow-[0_0_28px_rgba(56,189,248,0.16)] backdrop-blur-md sm:right-4 sm:text-[11px]">
+              <span className="hidden rounded border border-sky-100/18 bg-sky-100/8 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-sky-100/80 sm:inline">
                 Ctrl/Cmd
               </span>
-              <span className="wind-interaction-track" aria-hidden="true">
+              <span className="wind-interaction-track hidden sm:block" aria-hidden="true">
                 <span />
               </span>
-              <span>drag / scroll</span>
+              <span className="hidden sm:inline">drag / scroll</span>
+              <span className="wind-touch-dots sm:hidden" aria-hidden="true">
+                <span />
+                <span />
+              </span>
+              <span className="sm:hidden">
+                Two fingers: move / zoom
+              </span>
             </div>
           ) : null}
           <p className="absolute bottom-9 left-3 text-[10px] uppercase tracking-[0.18em] text-[#d6edf8]/35">
