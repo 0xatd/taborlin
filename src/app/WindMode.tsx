@@ -572,7 +572,7 @@ export default function WindMode() {
             : 'border-[#2a2a35] bg-[#06060B]/72 text-[#a1a1aa] hover:border-[#3a3a45] hover:text-[#fafafa]'
         }`}
       >
-        <span aria-hidden="true">🌪️</span>
+        <span aria-hidden="true">🌀</span>
       </button>
     </>
   );
