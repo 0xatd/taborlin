@@ -26,6 +26,8 @@ type MapboxConfig = {
 type Particle = {
   x: number;
   y: number;
+  vx: number;
+  vy: number;
   age: number;
   maxAge: number;
 };
@@ -197,6 +199,7 @@ function drawBaseMap(ctx: CanvasRenderingContext2D, width: number, height: numbe
 function nearestWind(points: WindPoint[], lon: number, lat: number) {
   let weightedX = 0;
   let weightedY = 0;
+  let weightedSpeed = 0;
   let totalWeight = 0;
 
   points.forEach((point) => {
@@ -209,20 +212,24 @@ function nearestWind(points: WindPoint[], lon: number, lat: number) {
 
     weightedX += -Math.sin(radians) * speed * weight;
     weightedY += Math.cos(radians) * speed * weight;
+    weightedSpeed += speed * weight;
     totalWeight += weight;
   });
 
   return {
     x: weightedX / totalWeight,
     y: weightedY / totalWeight,
+    speedMph: weightedSpeed / totalWeight,
   };
 }
 
 function resetParticle(particle: Particle, width: number, height: number) {
   particle.x = Math.random() * width;
   particle.y = Math.random() * height;
+  particle.vx = 0;
+  particle.vy = 0;
   particle.age = 0;
-  particle.maxAge = 130 + Math.floor(Math.random() * 130);
+  particle.maxAge = 180 + Math.floor(Math.random() * 180);
 }
 
 function drawStaticWind(
@@ -337,6 +344,7 @@ function MapboxBackdrop({
 
         const markReady = () => {
           if (!cancelled) {
+            map?.resize();
             onReady(true);
           }
         };
@@ -421,6 +429,7 @@ function WindCanvas({
     const context = canvas.getContext('2d');
     if (!context) return;
 
+    let frame = 0;
     let width = 0;
     let height = 0;
     let raf = 0;
@@ -440,10 +449,11 @@ function WindCanvas({
         context.clearRect(0, 0, width, height);
       }
 
-      const count = Math.min(720, Math.max(190, Math.floor((width * height) / 2400)));
+      const count = Math.min(580, Math.max(160, Math.floor((width * height) / 3800)));
       particlesRef.current = Array.from({ length: count }, () => {
-        const particle = { x: 0, y: 0, age: 0, maxAge: 160 };
+        const particle = { x: 0, y: 0, vx: 0, vy: 0, age: 0, maxAge: 220 };
         resetParticle(particle, width, height);
+        particle.age = Math.floor(Math.random() * particle.maxAge);
         return particle;
       });
     };
@@ -459,50 +469,73 @@ function WindCanvas({
         return;
       }
 
+      frame += 1;
+
       if (useFallbackMap) {
-        drawBaseMap(context, width, height);
+        if (frame % 150 === 1) {
+          drawBaseMap(context, width, height);
+        }
+        context.fillStyle = 'rgba(2, 7, 17, 0.11)';
+        context.fillRect(0, 0, width, height);
       } else {
         context.save();
         context.globalCompositeOperation = 'destination-out';
-        context.fillStyle = 'rgba(0, 0, 0, 0.052)';
+        context.fillStyle = 'rgba(0, 0, 0, 0.13)';
         context.fillRect(0, 0, width, height);
         context.restore();
       }
 
       context.lineCap = 'round';
-      context.lineWidth = useFallbackMap ? 1.15 : 1.25;
-      context.strokeStyle = useFallbackMap
-        ? 'rgba(174, 226, 255, 0.58)'
-        : 'rgba(213, 244, 255, 0.78)';
+      context.lineJoin = 'round';
+      context.globalCompositeOperation = 'source-over';
 
       particlesRef.current.forEach((particle) => {
-        const previousX = particle.x;
-        const previousY = particle.y;
-        const location = unprojectForView(mapRef.current, particle.x, particle.y, width, height);
-        const wind = nearestWind(points, location.lon, location.lat);
-        const factor = 0.28;
+        let windSpeed = 0;
 
-        particle.x += wind.x * factor;
-        particle.y += wind.y * factor;
+        for (let step = 0; step < 2; step += 1) {
+          const location = unprojectForView(mapRef.current, particle.x, particle.y, width, height);
+          const wind = nearestWind(points, location.lon, location.lat);
+          const factor = 0.24;
+
+          particle.vx = particle.vx * 0.64 + wind.x * factor * 0.36;
+          particle.vy = particle.vy * 0.64 + wind.y * factor * 0.36;
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          windSpeed = wind.speedMph;
+        }
+
         particle.age += 1;
-
         if (
           particle.age > particle.maxAge ||
-          particle.x < -20 ||
-          particle.x > width + 20 ||
-          particle.y < -20 ||
-          particle.y > height + 20
+          particle.x < -40 ||
+          particle.x > width + 40 ||
+          particle.y < -40 ||
+          particle.y > height + 40
         ) {
           resetParticle(particle, width, height);
           return;
         }
 
+        const lifeFade = Math.min(1, (particle.maxAge - particle.age) / 34);
+        const speedAlpha = Math.min(0.72, 0.24 + windSpeed / 70);
+        const velocity = Math.max(0.1, Math.hypot(particle.vx, particle.vy));
+        const tailLength = Math.min(30, 10 + windSpeed * 0.5);
+        const tailX = particle.x - (particle.vx / velocity) * tailLength;
+        const tailY = particle.y - (particle.vy / velocity) * tailLength;
+
+        context.globalAlpha = Math.max(0.08, lifeFade * speedAlpha);
+        context.lineWidth = useFallbackMap ? 1.05 : Math.min(1.35, 0.9 + windSpeed / 90);
+        context.strokeStyle = useFallbackMap
+          ? 'rgba(174, 226, 255, 0.62)'
+          : 'rgba(211, 244, 255, 0.72)';
         context.beginPath();
-        context.moveTo(previousX, previousY);
+        context.moveTo(tailX, tailY);
         context.lineTo(particle.x, particle.y);
         context.stroke();
       });
 
+      context.globalAlpha = 1;
+      context.globalCompositeOperation = 'source-over';
       raf = requestAnimationFrame(animate);
     };
 
@@ -612,12 +645,12 @@ export default function WindMode() {
       {enabled ? (
         <div className="fixed inset-0 z-0 overflow-hidden bg-[#020711]">
           <MapboxBackdrop config={activeMapboxConfig} onReady={setMapboxReady} mapRef={mapRef} />
-          <WindCanvas points={points} useFallbackMap={!mapboxReady} mapRef={mapRef} />
-          <div className="absolute inset-0 bg-[#05060b]/24" aria-hidden="true" />
+          <div className="absolute inset-0 bg-[#05060b]/36" aria-hidden="true" />
           <div
             className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(31,105,150,0.16),transparent_32%),radial-gradient(circle_at_68%_42%,rgba(5,18,29,0.24),transparent_38%)]"
             aria-hidden="true"
           />
+          <WindCanvas points={points} useFallbackMap={!mapboxReady} mapRef={mapRef} />
           <p className="absolute bottom-9 left-3 text-[10px] uppercase tracking-[0.18em] text-[#d6edf8]/35">
             {payload?.source === 'Open-Meteo' ? (
               <>
@@ -645,7 +678,7 @@ export default function WindMode() {
             : 'border-[#2a2a35] bg-[#06060B]/72 text-[#a1a1aa] hover:border-[#3a3a45] hover:text-[#fafafa]'
         }`}
       >
-        <span aria-hidden="true">🌀</span>
+        <span aria-hidden="true">🌪️</span>
       </button>
     </>
   );
