@@ -2,7 +2,7 @@
 
 import type { Map as MapboxMap } from 'mapbox-gl';
 import type { MutableRefObject } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type WindPoint = {
   lat: number;
@@ -11,11 +11,29 @@ type WindPoint = {
   directionDegrees: number;
 };
 
+type WindGrid = {
+  latitudes: number[];
+  longitudes: number[];
+};
+
 type WindPayload = {
   source: string;
   attribution: string;
   fetchedAt: string;
+  grid?: WindGrid;
   points: WindPoint[];
+};
+
+type WindVector = {
+  x: number;
+  y: number;
+  speedMph: number;
+};
+
+type WindField = {
+  points: WindPoint[];
+  grid: WindGrid | null;
+  vectors: WindVector[];
 };
 
 type MapboxConfig = {
@@ -188,31 +206,107 @@ function drawBaseMap(ctx: CanvasRenderingContext2D, width: number, height: numbe
   ctx.stroke();
   ctx.restore();
 
-  ctx.save();
-  ctx.fillStyle = 'rgba(236, 248, 255, 0.22)';
-  ctx.font = `${Math.max(11, width / 120)}px ui-sans-serif, system-ui, sans-serif`;
-  ctx.fillText('Pacific wind field', width * 0.07, height * 0.17);
-  ctx.fillText('Western North America', width * 0.62, height * 0.28);
-  ctx.restore();
 }
 
-function nearestWind(points: WindPoint[], lon: number, lat: number) {
+function vectorFromPoint(point: WindPoint): WindVector {
+  const radians = (point.directionDegrees * Math.PI) / 180;
+  const speed = Math.max(2, point.speedMph);
+
+  return {
+    x: -Math.sin(radians) * speed,
+    y: Math.cos(radians) * speed,
+    speedMph: speed,
+  };
+}
+
+function buildWindField(points: WindPoint[], grid?: WindGrid): WindField {
+  const gridMatchesPoints =
+    grid &&
+    grid.latitudes.length > 1 &&
+    grid.longitudes.length > 1 &&
+    grid.latitudes.length * grid.longitudes.length === points.length;
+
+  return {
+    points,
+    grid: gridMatchesPoints ? grid : null,
+    vectors: points.map(vectorFromPoint),
+  };
+}
+
+function findBracket(values: number[], value: number) {
+  if (value <= values[0]) {
+    return { lower: 0, upper: 0, ratio: 0 };
+  }
+
+  const lastIndex = values.length - 1;
+  if (value >= values[lastIndex]) {
+    return { lower: lastIndex, upper: lastIndex, ratio: 0 };
+  }
+
+  let low = 0;
+  let high = lastIndex;
+
+  while (high - low > 1) {
+    const mid = Math.floor((low + high) / 2);
+    if (values[mid] <= value) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+
+  const range = values[high] - values[low];
+  return {
+    lower: low,
+    upper: high,
+    ratio: range ? (value - values[low]) / range : 0,
+  };
+}
+
+function mixWind(a: WindVector, b: WindVector, amount: number): WindVector {
+  return {
+    x: a.x + (b.x - a.x) * amount,
+    y: a.y + (b.y - a.y) * amount,
+    speedMph: a.speedMph + (b.speedMph - a.speedMph) * amount,
+  };
+}
+
+function gridWind(field: WindField, lon: number, lat: number) {
+  const grid = field.grid;
+  if (!grid) return null;
+
+  const lonRange = findBracket(grid.longitudes, lon);
+  const latRange = findBracket(grid.latitudes, lat);
+  const columns = grid.longitudes.length;
+  const index = (latIndex: number, lonIndex: number) => latIndex * columns + lonIndex;
+  const southwest = field.vectors[index(latRange.lower, lonRange.lower)];
+  const southeast = field.vectors[index(latRange.lower, lonRange.upper)];
+  const northwest = field.vectors[index(latRange.upper, lonRange.lower)];
+  const northeast = field.vectors[index(latRange.upper, lonRange.upper)];
+
+  if (!southwest || !southeast || !northwest || !northeast) return null;
+
+  const south = mixWind(southwest, southeast, lonRange.ratio);
+  const north = mixWind(northwest, northeast, lonRange.ratio);
+  return mixWind(south, north, latRange.ratio);
+}
+
+function weightedWind(field: WindField, lon: number, lat: number) {
   let weightedX = 0;
   let weightedY = 0;
   let weightedSpeed = 0;
   let totalWeight = 0;
 
-  points.forEach((point) => {
+  field.points.forEach((point, index) => {
     const dx = lon - point.lon;
     const dy = lat - point.lat;
     const distance = Math.sqrt(dx * dx + dy * dy);
     const weight = 1 / Math.max(0.8, distance * distance);
-    const radians = (point.directionDegrees * Math.PI) / 180;
-    const speed = Math.max(2, point.speedMph);
+    const vector = field.vectors[index];
 
-    weightedX += -Math.sin(radians) * speed * weight;
-    weightedY += Math.cos(radians) * speed * weight;
-    weightedSpeed += speed * weight;
+    weightedX += vector.x * weight;
+    weightedY += vector.y * weight;
+    weightedSpeed += vector.speedMph * weight;
     totalWeight += weight;
   });
 
@@ -221,6 +315,10 @@ function nearestWind(points: WindPoint[], lon: number, lat: number) {
     y: weightedY / totalWeight,
     speedMph: weightedSpeed / totalWeight,
   };
+}
+
+function sampleWind(field: WindField, lon: number, lat: number) {
+  return gridWind(field, lon, lat) ?? weightedWind(field, lon, lat);
 }
 
 function resetParticle(particle: Particle, width: number, height: number) {
@@ -579,11 +677,11 @@ function MapboxBackdrop({
 }
 
 function WindCanvas({
-  points,
+  field,
   useFallbackMap,
   mapRef,
 }: {
-  points: WindPoint[];
+  field: WindField;
   useFallbackMap: boolean;
   mapRef: MutableRefObject<MapboxMap | null>;
 }) {
@@ -618,7 +716,7 @@ function WindCanvas({
         context.clearRect(0, 0, width, height);
       }
 
-      const count = Math.min(580, Math.max(160, Math.floor((width * height) / 3800)));
+      const count = Math.min(980, Math.max(240, Math.floor((width * height) / 1800)));
       particlesRef.current = Array.from({ length: count }, () => {
         const particle = { x: 0, y: 0, vx: 0, vy: 0, age: 0, maxAge: 220 };
         resetParticle(particle, width, height);
@@ -634,7 +732,7 @@ function WindCanvas({
         } else {
           context.clearRect(0, 0, width, height);
         }
-        drawStaticWind(context, points, width, height, mapRef.current);
+        drawStaticWind(context, field.points, width, height, mapRef.current);
         return;
       }
 
@@ -649,7 +747,7 @@ function WindCanvas({
       } else {
         context.save();
         context.globalCompositeOperation = 'destination-out';
-        context.fillStyle = 'rgba(0, 0, 0, 0.13)';
+        context.fillStyle = 'rgba(0, 0, 0, 0.085)';
         context.fillRect(0, 0, width, height);
         context.restore();
       }
@@ -660,14 +758,16 @@ function WindCanvas({
 
       particlesRef.current.forEach((particle) => {
         let windSpeed = 0;
+        const startX = particle.x;
+        const startY = particle.y;
 
-        for (let step = 0; step < 2; step += 1) {
+        for (let step = 0; step < 3; step += 1) {
           const location = unprojectForView(mapRef.current, particle.x, particle.y, width, height);
-          const wind = nearestWind(points, location.lon, location.lat);
-          const factor = 0.24;
+          const wind = sampleWind(field, location.lon, location.lat);
+          const factor = 0.18;
 
-          particle.vx = particle.vx * 0.64 + wind.x * factor * 0.36;
-          particle.vy = particle.vy * 0.64 + wind.y * factor * 0.36;
+          particle.vx = particle.vx * 0.72 + wind.x * factor * 0.28;
+          particle.vy = particle.vy * 0.72 + wind.y * factor * 0.28;
           particle.x += particle.vx;
           particle.y += particle.vy;
           windSpeed = wind.speedMph;
@@ -686,19 +786,15 @@ function WindCanvas({
         }
 
         const lifeFade = Math.min(1, (particle.maxAge - particle.age) / 34);
-        const speedAlpha = Math.min(0.72, 0.24 + windSpeed / 70);
-        const velocity = Math.max(0.1, Math.hypot(particle.vx, particle.vy));
-        const tailLength = Math.min(30, 10 + windSpeed * 0.5);
-        const tailX = particle.x - (particle.vx / velocity) * tailLength;
-        const tailY = particle.y - (particle.vy / velocity) * tailLength;
+        const speedAlpha = Math.min(0.56, 0.12 + windSpeed / 115);
 
-        context.globalAlpha = Math.max(0.08, lifeFade * speedAlpha);
-        context.lineWidth = useFallbackMap ? 1.05 : Math.min(1.35, 0.9 + windSpeed / 90);
+        context.globalAlpha = Math.max(0.045, lifeFade * speedAlpha);
+        context.lineWidth = useFallbackMap ? 0.9 : Math.min(1.05, 0.46 + windSpeed / 125);
         context.strokeStyle = useFallbackMap
-          ? 'rgba(174, 226, 255, 0.62)'
-          : 'rgba(211, 244, 255, 0.72)';
+          ? 'rgba(174, 226, 255, 0.52)'
+          : 'rgba(211, 244, 255, 0.64)';
         context.beginPath();
-        context.moveTo(tailX, tailY);
+        context.moveTo(startX, startY);
         context.lineTo(particle.x, particle.y);
         context.stroke();
       });
@@ -716,7 +812,7 @@ function WindCanvas({
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, [points, reducedMotion, useFallbackMap, mapRef]);
+  }, [field, reducedMotion, useFallbackMap, mapRef]);
 
   return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
@@ -836,6 +932,7 @@ export default function WindMode() {
   const points = payload?.points.length ? payload.points : SAMPLE_FALLBACK;
   const attribution =
     payload?.source === 'Open-Meteo' ? 'Wind data: Open-Meteo' : 'Wind mode preview';
+  const windField = useMemo(() => buildWindField(points, payload?.grid), [points, payload?.grid]);
 
   return (
     <>
@@ -847,7 +944,7 @@ export default function WindMode() {
             className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(31,105,150,0.16),transparent_32%),radial-gradient(circle_at_68%_42%,rgba(5,18,29,0.24),transparent_38%)]"
             aria-hidden="true"
           />
-          <WindCanvas points={points} useFallbackMap={!mapboxReady} mapRef={mapRef} />
+          <WindCanvas field={windField} useFallbackMap={!mapboxReady} mapRef={mapRef} />
           {showInteractionHint ? (
             <div className="wind-interaction-hint pointer-events-none absolute right-[4.75rem] top-[4.25rem] z-50 flex w-44 items-center justify-center gap-2 rounded-md border border-sky-200/16 bg-[#05060b]/74 px-3 py-2 text-[10px] font-medium text-sky-100/70 shadow-[0_0_28px_rgba(56,189,248,0.16)] backdrop-blur-md sm:right-4 sm:top-[7.25rem] sm:w-auto sm:justify-start sm:text-[11px]">
               <span className="hidden rounded border border-sky-100/18 bg-sky-100/8 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-sky-100/80 sm:inline">

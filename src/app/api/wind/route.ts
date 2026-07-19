@@ -19,50 +19,22 @@ type WindPoint = {
   directionDegrees: number;
 };
 
-const SAMPLE_POINTS = [
-  { lat: 55, lon: -148 },
-  { lat: 55, lon: -136 },
-  { lat: 55, lon: -124 },
-  { lat: 55, lon: -112 },
-  { lat: 55, lon: -100 },
-  { lat: 55, lon: -88 },
-  { lat: 55, lon: -76 },
-  { lat: 49, lon: -148 },
-  { lat: 49, lon: -136 },
-  { lat: 49, lon: -124 },
-  { lat: 49, lon: -112 },
-  { lat: 49, lon: -100 },
-  { lat: 49, lon: -88 },
-  { lat: 49, lon: -76 },
-  { lat: 43, lon: -148 },
-  { lat: 43, lon: -136 },
-  { lat: 43, lon: -124 },
-  { lat: 43, lon: -112 },
-  { lat: 43, lon: -100 },
-  { lat: 43, lon: -88 },
-  { lat: 43, lon: -76 },
-  { lat: 37, lon: -148 },
-  { lat: 37, lon: -136 },
-  { lat: 37, lon: -124 },
-  { lat: 37, lon: -112 },
-  { lat: 37, lon: -100 },
-  { lat: 37, lon: -88 },
-  { lat: 37, lon: -76 },
-  { lat: 31, lon: -148 },
-  { lat: 31, lon: -136 },
-  { lat: 31, lon: -124 },
-  { lat: 31, lon: -112 },
-  { lat: 31, lon: -100 },
-  { lat: 31, lon: -88 },
-  { lat: 31, lon: -76 },
-  { lat: 25, lon: -148 },
-  { lat: 25, lon: -136 },
-  { lat: 25, lon: -124 },
-  { lat: 25, lon: -112 },
-  { lat: 25, lon: -100 },
-  { lat: 25, lon: -88 },
-  { lat: 25, lon: -76 },
-];
+const OPEN_METEO_CHUNK_SIZE = 296;
+
+function range(start: number, end: number, step: number) {
+  return Array.from({ length: Math.floor((end - start) / step) + 1 }, (_, index) => {
+    return start + index * step;
+  });
+}
+
+const WIND_GRID = {
+  latitudes: range(14, 60, 2),
+  longitudes: range(-156, -48, 3),
+};
+
+const SAMPLE_POINTS = WIND_GRID.latitudes.flatMap((lat) =>
+  WIND_GRID.longitudes.map((lon) => ({ lat, lon })),
+);
 
 function fallbackField(): WindPoint[] {
   return SAMPLE_POINTS.map((point, index) => ({
@@ -80,17 +52,27 @@ function sanitizePoint(
   const direction = point?.current?.wind_direction_10m;
 
   return {
-    lat: typeof point?.latitude === 'number' ? point.latitude : fallback.lat,
-    lon: typeof point?.longitude === 'number' ? point.longitude : fallback.lon,
+    lat: fallback.lat,
+    lon: fallback.lon,
     speedMph: typeof speed === 'number' && Number.isFinite(speed) ? speed : 0,
     directionDegrees:
       typeof direction === 'number' && Number.isFinite(direction) ? direction : 270,
   };
 }
 
-export async function GET() {
-  const latitude = SAMPLE_POINTS.map((point) => point.lat).join(',');
-  const longitude = SAMPLE_POINTS.map((point) => point.lon).join(',');
+function chunkPoints<T>(points: T[], size: number) {
+  const chunks: T[][] = [];
+
+  for (let index = 0; index < points.length; index += size) {
+    chunks.push(points.slice(index, index + size));
+  }
+
+  return chunks;
+}
+
+async function fetchOpenMeteoPoints(points: { lat: number; lon: number }[]) {
+  const latitude = points.map((point) => point.lat).join(',');
+  const longitude = points.map((point) => point.lon).join(',');
   const url = new URL('https://api.open-meteo.com/v1/forecast');
 
   url.searchParams.set('latitude', latitude);
@@ -99,27 +81,33 @@ export async function GET() {
   url.searchParams.set('wind_speed_unit', 'mph');
   url.searchParams.set('timezone', 'UTC');
 
+  const response = await fetch(url, {
+    next: { revalidate },
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Open-Meteo returned ${response.status}`);
+  }
+
+  const payload = (await response.json()) as OpenMeteoPoint[] | OpenMeteoPoint;
+  const locations = Array.isArray(payload) ? payload : [payload];
+  return points.map((fallback, index) => sanitizePoint(locations[index], fallback));
+}
+
+export async function GET() {
   try {
-    const response = await fetch(url, {
-      next: { revalidate },
-      headers: {
-        Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Open-Meteo returned ${response.status}`);
-    }
-
-    const payload = (await response.json()) as OpenMeteoPoint[] | OpenMeteoPoint;
-    const locations = Array.isArray(payload) ? payload : [payload];
-    const points = SAMPLE_POINTS.map((fallback, index) => sanitizePoint(locations[index], fallback));
+    const chunks = chunkPoints(SAMPLE_POINTS, OPEN_METEO_CHUNK_SIZE);
+    const points = (await Promise.all(chunks.map(fetchOpenMeteoPoints))).flat();
 
     return NextResponse.json(
       {
         source: 'Open-Meteo',
         attribution: 'Weather data by Open-Meteo.com (CC BY 4.0)',
         fetchedAt: new Date().toISOString(),
+        grid: WIND_GRID,
         points,
       },
       {
@@ -136,6 +124,7 @@ export async function GET() {
         source: 'fallback',
         attribution: 'Wind field fallback while Open-Meteo is unavailable',
         fetchedAt: new Date().toISOString(),
+        grid: WIND_GRID,
         points: fallbackField(),
       },
       {
