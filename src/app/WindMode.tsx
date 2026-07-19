@@ -306,12 +306,20 @@ function MapboxBackdrop({
     let cancelled = false;
     let map: MapboxMap | null = null;
     let cleanupResize: (() => void) | null = null;
+    let dragState: { pointerId: number; x: number; y: number } | null = null;
 
     function viewportCamera() {
       return {
         center: [-123.5, 40.5] as [number, number],
         zoom: window.innerWidth < 640 ? 2.0 : 2.62,
       };
+    }
+
+    function isInteractiveTarget(target: EventTarget | null) {
+      return (
+        target instanceof Element &&
+        Boolean(target.closest('a, button, input, textarea, select, [role="button"]'))
+      );
     }
 
     import('mapbox-gl')
@@ -336,11 +344,15 @@ function MapboxBackdrop({
         mapRef.current = map;
         map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
 
-        const syncZoomMarker = () => {
+        const syncCameraMarker = () => {
+          const center = map?.getCenter();
           container.dataset.zoom = map?.getZoom().toFixed(2) ?? '';
+          container.dataset.center = center
+            ? `${center.lng.toFixed(3)},${center.lat.toFixed(3)}`
+            : '';
         };
-        syncZoomMarker();
-        map.on('move', syncZoomMarker);
+        syncCameraMarker();
+        map.on('move', syncCameraMarker);
 
         const markReady = () => {
           if (!cancelled) {
@@ -373,14 +385,64 @@ function MapboxBackdrop({
             around: map.unproject([event.clientX, event.clientY]),
             duration: 90,
           });
-          syncZoomMarker();
+          syncCameraMarker();
+        };
+
+        const stopDrag = () => {
+          dragState = null;
+          document.documentElement.classList.remove('wind-map-dragging');
+        };
+
+        const handlePointerDown = (event: PointerEvent) => {
+          if (
+            !map ||
+            event.button !== 0 ||
+            (!event.ctrlKey && !event.metaKey) ||
+            isInteractiveTarget(event.target)
+          ) {
+            return;
+          }
+
+          event.preventDefault();
+          dragState = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+          document.documentElement.classList.add('wind-map-dragging');
+        };
+
+        const handlePointerMove = (event: PointerEvent) => {
+          if (!map || !dragState || event.pointerId !== dragState.pointerId) return;
+
+          if (!event.ctrlKey && !event.metaKey) {
+            stopDrag();
+            return;
+          }
+
+          event.preventDefault();
+          const deltaX = event.clientX - dragState.x;
+          const deltaY = event.clientY - dragState.y;
+
+          if (deltaX || deltaY) {
+            map.panBy([-deltaX, -deltaY], { duration: 0 });
+            dragState = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+            syncCameraMarker();
+          }
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
+        window.addEventListener('pointerdown', handlePointerDown, { passive: false });
+        window.addEventListener('pointermove', handlePointerMove, { passive: false });
+        window.addEventListener('pointerup', stopDrag);
+        window.addEventListener('pointercancel', stopDrag);
+        window.addEventListener('blur', stopDrag);
         const cleanupExisting = cleanupResize;
         cleanupResize = () => {
           cleanupExisting?.();
           window.removeEventListener('wheel', handleWheel);
+          window.removeEventListener('pointerdown', handlePointerDown);
+          window.removeEventListener('pointermove', handlePointerMove);
+          window.removeEventListener('pointerup', stopDrag);
+          window.removeEventListener('pointercancel', stopDrag);
+          window.removeEventListener('blur', stopDrag);
+          stopDrag();
         };
       })
       .catch(() => {
@@ -558,6 +620,7 @@ export default function WindMode() {
   const [payload, setPayload] = useState<WindPayload | null>(null);
   const [mapboxConfig, setMapboxConfig] = useState<MapboxConfig | null>(null);
   const [mapboxReady, setMapboxReady] = useState(false);
+  const [showInteractionHint, setShowInteractionHint] = useState(false);
   const mapboxRequestedRef = useRef(false);
   const mapRef = useRef<MapboxMap | null>(null);
   const activeMapboxConfig = EMBEDDED_MAPBOX_CONFIG ?? mapboxConfig;
@@ -636,6 +699,31 @@ export default function WindMode() {
     };
   }, [enabled, activeMapboxConfig]);
 
+  useEffect(() => {
+    const showTimer = window.setTimeout(() => setShowInteractionHint(enabled), 0);
+
+    if (!enabled) {
+      return () => window.clearTimeout(showTimer);
+    }
+
+    const hideTimer = window.setTimeout(() => setShowInteractionHint(false), 7800);
+    const hideOnInteraction = (event: WheelEvent | PointerEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        setShowInteractionHint(false);
+      }
+    };
+
+    window.addEventListener('wheel', hideOnInteraction, { passive: true });
+    window.addEventListener('pointerdown', hideOnInteraction, { passive: true });
+
+    return () => {
+      window.clearTimeout(showTimer);
+      window.clearTimeout(hideTimer);
+      window.removeEventListener('wheel', hideOnInteraction);
+      window.removeEventListener('pointerdown', hideOnInteraction);
+    };
+  }, [enabled]);
+
   const points = payload?.points.length ? payload.points : SAMPLE_FALLBACK;
   const attribution =
     payload?.source === 'Open-Meteo' ? 'Wind data: Open-Meteo' : 'Wind mode preview';
@@ -651,6 +739,17 @@ export default function WindMode() {
             aria-hidden="true"
           />
           <WindCanvas points={points} useFallbackMap={!mapboxReady} mapRef={mapRef} />
+          {showInteractionHint ? (
+            <div className="wind-interaction-hint pointer-events-none absolute right-4 top-[7.25rem] z-50 hidden items-center gap-2 rounded-md border border-sky-200/16 bg-[#05060b]/74 px-3 py-2 text-[11px] font-medium text-sky-100/70 shadow-[0_0_28px_rgba(56,189,248,0.16)] backdrop-blur-md sm:flex">
+              <span className="rounded border border-sky-100/18 bg-sky-100/8 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-sky-100/80">
+                Ctrl/Cmd
+              </span>
+              <span className="wind-interaction-track" aria-hidden="true">
+                <span />
+              </span>
+              <span>drag / scroll</span>
+            </div>
+          ) : null}
           <p className="absolute bottom-9 left-3 text-[10px] uppercase tracking-[0.18em] text-[#d6edf8]/35">
             {payload?.source === 'Open-Meteo' ? (
               <>

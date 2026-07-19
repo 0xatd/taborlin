@@ -195,6 +195,77 @@ html {
   color: rgba(214, 237, 248, 0.86);
 }
 
+.wind-map-dragging,
+.wind-map-dragging * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.wind-interaction-hint {
+  animation: wind-hint-lifecycle 7.8s ease forwards;
+}
+
+.wind-interaction-track {
+  position: relative;
+  width: 34px;
+  height: 14px;
+}
+
+.wind-interaction-track::before {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  width: 34px;
+  height: 1px;
+  content: '';
+  background: linear-gradient(90deg, transparent, rgba(186, 230, 253, 0.76), transparent);
+}
+
+.wind-interaction-track span {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(224, 242, 254, 0.88);
+  box-shadow: 0 0 12px rgba(125, 211, 252, 0.45);
+  animation: wind-hint-drag 1.55s ease-in-out infinite;
+}
+
+@keyframes wind-hint-lifecycle {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  12%,
+  74% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes wind-hint-drag {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(18px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wind-interaction-hint,
+  .wind-interaction-track span {
+    animation: none;
+  }
+}
+
 ::selection {
   background: rgba(59, 130, 246, 0.25);
   color: #fafafa;
