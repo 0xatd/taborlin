@@ -849,7 +849,7 @@ export default function WindMode() {
           />
           <WindCanvas points={points} useFallbackMap={!mapboxReady} mapRef={mapRef} />
           {showInteractionHint ? (
-            <div className="wind-interaction-hint pointer-events-none absolute right-3 top-[7.25rem] z-50 flex items-center gap-2 rounded-md border border-sky-200/16 bg-[#05060b]/74 px-3 py-2 text-[10px] font-medium text-sky-100/70 shadow-[0_0_28px_rgba(56,189,248,0.16)] backdrop-blur-md sm:right-4 sm:text-[11px]">
+            <div className="wind-interaction-hint pointer-events-none absolute right-[4.75rem] top-[4.25rem] z-50 flex w-44 items-center justify-center gap-2 rounded-md border border-sky-200/16 bg-[#05060b]/74 px-3 py-2 text-[10px] font-medium text-sky-100/70 shadow-[0_0_28px_rgba(56,189,248,0.16)] backdrop-blur-md sm:right-4 sm:top-[7.25rem] sm:w-auto sm:justify-start sm:text-[11px]">
               <span className="hidden rounded border border-sky-100/18 bg-sky-100/8 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-sky-100/80 sm:inline">
                 Ctrl/Cmd
               </span>
@@ -861,9 +861,7 @@ export default function WindMode() {
                 <span />
                 <span />
               </span>
-              <span className="sm:hidden">
-                Two fingers: move / zoom
-              </span>
+              <span className="sm:hidden">2 fingers: move / zoom</span>
             </div>
           ) : null}
           <p className="absolute bottom-9 left-3 text-[10px] uppercase tracking-[0.18em] text-[#d6edf8]/35">
