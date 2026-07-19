@@ -381,6 +381,27 @@ function useReducedMotion() {
   return reduced;
 }
 
+function WindToggleIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 7.2c3.5-3.3 10.4-3.7 14.2-.7 2.9 2.3 2.1 6.5-1.6 7.5-2.8.8-6.8-.1-8.4-2.1-1.2-1.6.1-3.5 2.7-3.8 2.1-.2 4 .5 4.6 1.8" />
+      <path d="M5.8 13.5c2.4 2 6.9 2.7 10.2 1.4" />
+      <path d="M8.2 17.6c2 .8 5.1.7 7.3-.2" />
+      <path d="M10.6 20.4c1.3.3 3 .2 4.2-.3" />
+    </svg>
+  );
+}
+
 function MapboxBackdrop({
   config,
   onReady,
@@ -993,7 +1014,7 @@ export default function WindMode() {
             : 'border-[#2a2a35] bg-[#06060B]/72 text-[#a1a1aa] hover:border-[#3a3a45] hover:text-[#fafafa]'
         }`}
       >
-        <span aria-hidden="true">🌪️</span>
+        <WindToggleIcon />
       </button>
     </>
   );
