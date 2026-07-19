@@ -456,7 +456,7 @@ function MapboxBackdrop({
           fadeDuration: 0,
         });
         mapRef.current = map;
-        map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
+        map.addControl(new mapboxgl.AttributionControl({ compact: false }), 'bottom-left');
 
         const syncCameraMarker = () => {
           if (!map) {
@@ -961,11 +961,16 @@ export default function WindMode() {
               <span className="sm:hidden">2 fingers: move / zoom</span>
             </div>
           ) : null}
-          <p className="absolute bottom-9 left-3 text-[10px] uppercase tracking-[0.18em] text-[#d6edf8]/35">
+          <p className="absolute bottom-2 right-3 text-[8px] uppercase tracking-[0.14em] text-[#d6edf8]/24">
             {payload?.source === 'Open-Meteo' ? (
               <>
                 Wind data:{' '}
-                <a href="https://open-meteo.com/" target="_blank" rel="noopener" className="underline-offset-2 hover:underline">
+                <a
+                  href="https://open-meteo.com/"
+                  target="_blank"
+                  rel="noopener"
+                  className="underline-offset-2 hover:underline"
+                >
                   Open-Meteo
                 </a>
               </>

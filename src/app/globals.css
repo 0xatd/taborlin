@@ -184,11 +184,11 @@ html {
   background: rgba(5, 6, 11, 0.72);
   color: rgba(214, 237, 248, 0.72);
   font-family: var(--font-geist-sans), Inter, sans-serif;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .wind-mapbox .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-attrib {
-  margin-left: 84px;
+  margin-left: 76px;
 }
 
 .wind-mapbox .mapboxgl-ctrl-attrib a {
