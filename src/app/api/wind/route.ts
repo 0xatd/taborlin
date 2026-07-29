@@ -28,8 +28,8 @@ function range(start: number, end: number, step: number) {
 }
 
 const WIND_GRID = {
-  latitudes: range(14, 60, 2),
-  longitudes: range(-156, -48, 3),
+  latitudes: range(14, 60, 1.5),
+  longitudes: range(-156, -48, 2),
 };
 
 const SAMPLE_POINTS = WIND_GRID.latitudes.flatMap((lat) =>

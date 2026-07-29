@@ -42,10 +42,19 @@ type MapboxConfig = {
 };
 
 type Particle = {
-  x: number;
-  y: number;
+  lon: number;
+  lat: number;
+  px: number;
+  py: number;
   age: number;
   maxAge: number;
+};
+
+type GeoBounds = {
+  minLon: number;
+  maxLon: number;
+  minLat: number;
+  maxLat: number;
 };
 
 type Hurricane = {
@@ -410,8 +419,8 @@ function drawLightning(
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  if (progress < 0.16) {
-    ctx.globalAlpha = 0.15 * (1 - progress / 0.16);
+  if (progress < 0.14) {
+    ctx.globalAlpha = 0.05 * (1 - progress / 0.14);
     ctx.fillStyle = 'rgb(198, 224, 255)';
     ctx.fillRect(0, 0, width, height);
   }
@@ -422,33 +431,33 @@ function drawLightning(
     0,
     bolt.strikeX,
     bolt.strikeY,
-    120,
+    54,
   );
-  glow.addColorStop(0, `rgba(190, 222, 255, ${0.32 * flicker})`);
+  glow.addColorStop(0, `rgba(190, 222, 255, ${0.07 * flicker})`);
   glow.addColorStop(1, 'rgba(190, 222, 255, 0)');
   ctx.globalAlpha = 1;
   ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(bolt.strikeX, bolt.strikeY, 120, 0, Math.PI * 2);
+  ctx.arc(bolt.strikeX, bolt.strikeY, 54, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.shadowColor = 'rgba(147, 197, 253, 0.9)';
-  ctx.shadowBlur = 18;
+  ctx.shadowColor = 'rgba(147, 197, 253, 0.5)';
+  ctx.shadowBlur = 9;
 
-  ctx.globalAlpha = 0.4 * flicker;
-  ctx.strokeStyle = 'rgba(147, 197, 253, 0.85)';
-  ctx.lineWidth = 5.5;
+  ctx.globalAlpha = 0.2 * flicker;
+  ctx.strokeStyle = 'rgba(147, 197, 253, 0.7)';
+  ctx.lineWidth = 3.2;
   tracePath(ctx, bolt.main);
   ctx.stroke();
 
-  ctx.globalAlpha = 0.95 * flicker;
-  ctx.strokeStyle = 'rgba(240, 249, 255, 0.98)';
-  ctx.lineWidth = 2.1;
+  ctx.globalAlpha = 0.66 * flicker;
+  ctx.strokeStyle = 'rgba(228, 241, 255, 0.9)';
+  ctx.lineWidth = 1.4;
   tracePath(ctx, bolt.main);
   ctx.stroke();
 
-  ctx.globalAlpha = 0.75 * flicker;
-  ctx.lineWidth = 1.2;
+  ctx.globalAlpha = 0.45 * flicker;
+  ctx.lineWidth = 0.9;
   bolt.branches.forEach((branch) => {
     tracePath(ctx, branch);
     ctx.stroke();
@@ -570,24 +579,49 @@ function sampleWind(field: WindField, lon: number, lat: number) {
   return gridWind(field, lon, lat) ?? weightedWind(field, lon, lat);
 }
 
-function resetParticle(
-  particle: Particle,
-  width: number,
-  height: number,
-  storms?: ActiveStorm[],
-) {
-  particle.x = Math.random() * width;
-  particle.y = Math.random() * height;
+const MILES_PER_DEGREE = 69.05;
+const BASE_PX_PER_DEGREE = 8.74;
+const BASE_SIM_HOURS_PER_FRAME = 0.62;
+
+function boundsFromPoints(points: WindPoint[]): GeoBounds {
+  let minLon = Infinity;
+  let maxLon = -Infinity;
+  let minLat = Infinity;
+  let maxLat = -Infinity;
+
+  points.forEach((point) => {
+    minLon = Math.min(minLon, point.lon);
+    maxLon = Math.max(maxLon, point.lon);
+    minLat = Math.min(minLat, point.lat);
+    maxLat = Math.max(maxLat, point.lat);
+  });
+
+  return {
+    minLon: minLon - 0.75,
+    maxLon: maxLon + 0.75,
+    minLat: minLat - 0.75,
+    maxLat: maxLat + 0.75,
+  };
+}
+
+function intersectBounds(a: GeoBounds, b: GeoBounds): GeoBounds | null {
+  const bounds = {
+    minLon: Math.max(a.minLon, b.minLon),
+    maxLon: Math.min(a.maxLon, b.maxLon),
+    minLat: Math.max(a.minLat, b.minLat),
+    maxLat: Math.min(a.maxLat, b.maxLat),
+  };
+
+  return bounds.minLon < bounds.maxLon && bounds.minLat < bounds.maxLat ? bounds : null;
+}
+
+function resetParticle(particle: Particle, bounds: GeoBounds) {
+  particle.lon = bounds.minLon + Math.random() * (bounds.maxLon - bounds.minLon);
+  particle.lat = bounds.minLat + Math.random() * (bounds.maxLat - bounds.minLat);
+  particle.px = Number.NaN;
+  particle.py = Number.NaN;
   particle.age = 0;
   particle.maxAge = 160 + Math.floor(Math.random() * 220);
-
-  if (storms?.length && Math.random() < 0.4) {
-    const storm = storms[Math.floor(Math.random() * storms.length)];
-    const angle = Math.random() * Math.PI * 2;
-    const radius = storm.coreRadius * (0.25 + Math.random() * 2.4);
-    particle.x = storm.cx + Math.cos(angle) * radius;
-    particle.y = storm.cy + Math.sin(angle) * radius;
-  }
 }
 
 function drawStaticWind(
@@ -978,6 +1012,9 @@ function WindCanvas({
     let height = 0;
     let raf = 0;
     let lastFrameTime = 0;
+    let lastCameraKey = '';
+
+    const dataBounds = boundsFromPoints(field.points);
 
     const resize = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -996,8 +1033,8 @@ function WindCanvas({
 
       const count = Math.min(2400, Math.max(320, Math.floor((width * height) / 950)));
       particlesRef.current = Array.from({ length: count }, () => {
-        const particle = { x: 0, y: 0, age: 0, maxAge: 220 };
-        resetParticle(particle, width, height);
+        const particle = { lon: 0, lat: 0, px: Number.NaN, py: Number.NaN, age: 0, maxAge: 220 };
+        resetParticle(particle, dataBounds);
         particle.age = Math.floor(Math.random() * particle.maxAge);
         return particle;
       });
@@ -1011,7 +1048,7 @@ function WindCanvas({
         const location = unprojectForView(mapRef.current, clientX, clientY, width, height);
         hurricanesRef.current = [
           ...hurricanesRef.current.slice(-2),
-          { lon: location.lon, lat: location.lat, bornAt: now, duration: 15000 },
+          { lon: location.lon, lat: location.lat, bornAt: now, duration: 9000 },
         ];
       } else {
         boltsRef.current = [
@@ -1067,6 +1104,22 @@ function WindCanvas({
       lastFrameTime = now;
       frame += 1;
 
+      const map = mapRef.current;
+
+      let cameraKey = 'static';
+      if (map) {
+        try {
+          const center = map.getCenter();
+          cameraKey = `${center.lng.toFixed(5)},${center.lat.toFixed(5)},${map
+            .getZoom()
+            .toFixed(4)}`;
+        } catch {
+          cameraKey = lastCameraKey;
+        }
+      }
+      const cameraMoved = cameraKey !== lastCameraKey && lastCameraKey !== '';
+      lastCameraKey = cameraKey;
+
       if (useFallbackMap) {
         if (frame % 240 === 1) {
           drawBaseMap(context, width, height);
@@ -1076,25 +1129,33 @@ function WindCanvas({
       } else {
         context.save();
         context.globalCompositeOperation = 'destination-out';
-        context.fillStyle = 'rgba(0, 0, 0, 0.068)';
+        context.fillStyle = cameraMoved ? 'rgba(0, 0, 0, 0.42)' : 'rgba(0, 0, 0, 0.068)';
         context.fillRect(0, 0, width, height);
         context.restore();
       }
 
-      const map = mapRef.current;
-      let zoom = 2.62;
-      if (map) {
-        try {
-          const currentZoom = map.getZoom();
-          if (Number.isFinite(currentZoom)) {
-            zoom = currentZoom;
-          }
-        } catch {
-          // Keep the default camera scale until Mapbox can report zoom again.
-        }
-      }
-      const zoomFactor = Math.min(4, Math.max(0.45, Math.pow(2, zoom - 2.62)));
-      const pxPerMph = 0.115 * zoomFactor;
+      // Measure the projection scale so simulated time (not pixel speed) is the
+      // only tuning knob: relative speeds and directions stay geographically true.
+      const viewCenter = unprojectForView(map, width / 2, height / 2, width, height);
+      const west = projectForView(map, viewCenter.lon - 0.5, viewCenter.lat, width, height);
+      const east = projectForView(map, viewCenter.lon + 0.5, viewCenter.lat, width, height);
+      const pxPerDegree = Math.max(2, Math.abs(east.x - west.x));
+      const hoursPerFrame = Math.min(
+        1.3,
+        Math.max(0.1, BASE_SIM_HOURS_PER_FRAME * Math.sqrt(BASE_PX_PER_DEGREE / pxPerDegree)),
+      );
+
+      const viewBounds: GeoBounds = (() => {
+        const topLeft = unprojectForView(map, -40, -40, width, height);
+        const bottomRight = unprojectForView(map, width + 40, height + 40, width, height);
+        return {
+          minLon: Math.min(topLeft.lon, bottomRight.lon),
+          maxLon: Math.max(topLeft.lon, bottomRight.lon),
+          minLat: Math.min(topLeft.lat, bottomRight.lat),
+          maxLat: Math.max(topLeft.lat, bottomRight.lat),
+        };
+      })();
+      const spawnBounds = intersectBounds(viewBounds, dataBounds) ?? dataBounds;
 
       hurricanesRef.current = hurricanesRef.current.filter(
         (hurricane) => now - hurricane.bornAt < hurricane.duration,
@@ -1108,60 +1169,103 @@ function WindCanvas({
         storms.push({
           cx: center.x,
           cy: center.y,
-          coreRadius: Math.min(240, Math.max(48, 92 * zoomFactor)),
+          coreRadius: Math.min(240, Math.max(48, 92 * (pxPerDegree / BASE_PX_PER_DEGREE))),
           strength: 96 * envelope,
         });
       });
+
+      const respawn = (particle: Particle) => {
+        resetParticle(particle, spawnBounds);
+
+        if (storms.length && Math.random() < 0.4) {
+          const storm = storms[Math.floor(Math.random() * storms.length)];
+          const angle = Math.random() * Math.PI * 2;
+          const radius = storm.coreRadius * (0.25 + Math.random() * 2.4);
+          const location = unprojectForView(
+            map,
+            storm.cx + Math.cos(angle) * radius,
+            storm.cy + Math.sin(angle) * radius,
+            width,
+            height,
+          );
+
+          particle.lon = location.lon;
+          particle.lat = location.lat;
+        }
+      };
 
       context.lineCap = 'round';
       context.lineJoin = 'round';
       context.globalCompositeOperation = 'source-over';
 
       particlesRef.current.forEach((particle) => {
-        const startX = particle.x;
-        const startY = particle.y;
+        if (cameraMoved || Number.isNaN(particle.px)) {
+          const projected = projectForView(map, particle.lon, particle.lat, width, height);
+          particle.px = projected.x;
+          particle.py = projected.y;
+        }
+
+        const startX = particle.px;
+        const startY = particle.py;
         let renderSpeed = 0;
 
         for (let step = 0; step < 2; step += 1) {
-          const location = unprojectForView(map, particle.x, particle.y, width, height);
           const wind = addStormWind(
             storms,
-            particle.x,
-            particle.y,
-            sampleWind(field, location.lon, location.lat),
+            startX,
+            startY,
+            sampleWind(field, particle.lon, particle.lat),
           );
-          const speed = Math.hypot(wind.x, wind.y);
-          const stepScale = (pxPerMph * dt) / 2;
+          const hours = (hoursPerFrame * dt) / 2;
+          const cosLat = Math.max(0.2, Math.cos((particle.lat * Math.PI) / 180));
 
-          renderSpeed = Math.max(renderSpeed, speed);
-          particle.x += wind.x * stepScale;
-          particle.y += wind.y * stepScale;
+          renderSpeed = Math.max(renderSpeed, Math.hypot(wind.x, wind.y));
+          particle.lon += (wind.x * hours) / (MILES_PER_DEGREE * cosLat);
+          particle.lat -= (wind.y * hours) / MILES_PER_DEGREE;
         }
 
+        const end = projectForView(map, particle.lon, particle.lat, width, height);
         particle.age += dt;
+
+        const outOfData =
+          particle.lon < dataBounds.minLon ||
+          particle.lon > dataBounds.maxLon ||
+          particle.lat < dataBounds.minLat ||
+          particle.lat > dataBounds.maxLat;
+        const nearStorm = storms.some(
+          (storm) =>
+            Math.hypot(end.x - storm.cx, end.y - storm.cy) < storm.coreRadius * 6,
+        );
+
         if (
           particle.age > particle.maxAge ||
-          particle.x < -40 ||
-          particle.x > width + 40 ||
-          particle.y < -40 ||
-          particle.y > height + 40 ||
+          (outOfData && !nearStorm) ||
+          end.x < -60 ||
+          end.x > width + 60 ||
+          end.y < -60 ||
+          end.y > height + 60 ||
           Math.random() < 0.0028 * dt
         ) {
-          resetParticle(particle, width, height, storms);
+          respawn(particle);
           return;
         }
 
-        const fadeIn = Math.min(1, particle.age / 12);
-        const fadeOut = Math.min(1, (particle.maxAge - particle.age) / 30);
-        const speedAlpha = Math.min(0.88, 0.28 + renderSpeed / 80);
+        if (!cameraMoved) {
+          const fadeIn = Math.min(1, particle.age / 12);
+          const fadeOut = Math.min(1, (particle.maxAge - particle.age) / 30);
+          const speedAlpha = Math.min(0.88, 0.28 + renderSpeed / 80);
 
-        context.globalAlpha = Math.max(0.03, fadeIn * fadeOut * speedAlpha);
-        context.lineWidth = Math.min(1.9, 0.75 + renderSpeed / 42);
-        context.strokeStyle = speedColor(renderSpeed);
-        context.beginPath();
-        context.moveTo(startX, startY);
-        context.lineTo(particle.x, particle.y);
-        context.stroke();
+          context.globalAlpha = Math.max(0.03, fadeIn * fadeOut * speedAlpha);
+          context.lineWidth = Math.min(1.9, 0.75 + renderSpeed / 42);
+          context.strokeStyle = speedColor(renderSpeed);
+          context.beginPath();
+          context.moveTo(startX, startY);
+          context.lineTo(end.x, end.y);
+          context.stroke();
+        }
+
+        particle.px = end.x;
+        particle.py = end.y;
       });
 
       boltsRef.current = boltsRef.current.filter((bolt) => now - bolt.bornAt < bolt.duration);
