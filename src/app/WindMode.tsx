@@ -42,12 +42,42 @@ type MapboxConfig = {
 };
 
 type Particle = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
+  lon: number;
+  lat: number;
+  px: number;
+  py: number;
   age: number;
   maxAge: number;
+};
+
+type GeoBounds = {
+  minLon: number;
+  maxLon: number;
+  minLat: number;
+  maxLat: number;
+};
+
+type Hurricane = {
+  lon: number;
+  lat: number;
+  bornAt: number;
+  duration: number;
+};
+
+type ActiveStorm = {
+  cx: number;
+  cy: number;
+  coreRadius: number;
+  strength: number;
+};
+
+type LightningBolt = {
+  bornAt: number;
+  duration: number;
+  strikeX: number;
+  strikeY: number;
+  main: { x: number; y: number }[];
+  branches: { x: number; y: number }[][];
 };
 
 const EXTENT = {
@@ -208,6 +238,234 @@ function drawBaseMap(ctx: CanvasRenderingContext2D, width: number, height: numbe
 
 }
 
+const SPEED_COLOR_STOPS: [number, [number, number, number]][] = [
+  [0, [96, 138, 188]],
+  [6, [90, 178, 215]],
+  [12, [82, 208, 204]],
+  [18, [104, 223, 164]],
+  [26, [168, 229, 118]],
+  [34, [234, 220, 96]],
+  [44, [248, 173, 82]],
+  [56, [247, 116, 86]],
+  [70, [237, 82, 120]],
+  [92, [226, 66, 168]],
+];
+
+const SPEED_COLOR_MAX = 96;
+const SPEED_COLOR_BUCKETS = 128;
+
+const SPEED_COLORS = Array.from({ length: SPEED_COLOR_BUCKETS + 1 }, (_, bucket) => {
+  const speed = (bucket / SPEED_COLOR_BUCKETS) * SPEED_COLOR_MAX;
+  let lower = SPEED_COLOR_STOPS[0];
+  let upper = SPEED_COLOR_STOPS[SPEED_COLOR_STOPS.length - 1];
+
+  for (let index = 0; index < SPEED_COLOR_STOPS.length - 1; index += 1) {
+    if (speed >= SPEED_COLOR_STOPS[index][0] && speed <= SPEED_COLOR_STOPS[index + 1][0]) {
+      lower = SPEED_COLOR_STOPS[index];
+      upper = SPEED_COLOR_STOPS[index + 1];
+      break;
+    }
+  }
+
+  const span = upper[0] - lower[0] || 1;
+  const mix = Math.min(1, Math.max(0, (speed - lower[0]) / span));
+  const channel = (idx: number) =>
+    Math.round(lower[1][idx] + (upper[1][idx] - lower[1][idx]) * mix);
+
+  return `rgba(${channel(0)}, ${channel(1)}, ${channel(2)}, 0.92)`;
+});
+
+function speedColor(speedMph: number) {
+  const bucket = Math.round((speedMph / SPEED_COLOR_MAX) * SPEED_COLOR_BUCKETS);
+  return SPEED_COLORS[Math.min(SPEED_COLOR_BUCKETS, Math.max(0, bucket))];
+}
+
+function isInteractiveTarget(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest('a, button, input, textarea, select, [role="button"]'))
+  );
+}
+
+function stormEnvelope(progress: number) {
+  if (progress <= 0 || progress >= 1) return 0;
+
+  const smooth = (value: number) => value * value * (3 - 2 * value);
+  const rise = Math.min(1, progress / 0.09);
+  const fall = progress > 0.68 ? Math.max(0, 1 - (progress - 0.68) / 0.32) : 1;
+
+  return smooth(rise) * smooth(fall);
+}
+
+function addStormWind(storms: ActiveStorm[], x: number, y: number, wind: WindVector) {
+  let vx = wind.x;
+  let vy = wind.y;
+
+  for (const storm of storms) {
+    const dx = x - storm.cx;
+    const dy = y - storm.cy;
+    const distance = Math.hypot(dx, dy);
+    const reach = storm.coreRadius * 6;
+
+    if (distance < 1 || distance > reach) continue;
+
+    const shape =
+      distance < storm.coreRadius
+        ? distance / storm.coreRadius
+        : Math.pow(storm.coreRadius / distance, 0.85);
+    const taper = 1 - Math.min(1, (distance / reach) ** 2);
+    const magnitude = storm.strength * shape * taper;
+    const nx = dx / distance;
+    const ny = dy / distance;
+
+    vx += (ny - nx * 0.3) * magnitude;
+    vy += (-nx - ny * 0.3) * magnitude;
+  }
+
+  return { x: vx, y: vy };
+}
+
+function midpointDisplace(
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+  offset: number,
+  iterations: number,
+) {
+  let points = [start, end];
+  let amount = offset;
+
+  for (let iteration = 0; iteration < iterations; iteration += 1) {
+    const next = [points[0]];
+
+    for (let index = 0; index < points.length - 1; index += 1) {
+      const a = points[index];
+      const b = points[index + 1];
+      next.push(
+        {
+          x: (a.x + b.x) / 2 + (Math.random() - 0.5) * amount,
+          y: (a.y + b.y) / 2 + (Math.random() - 0.5) * amount * 0.6,
+        },
+        b,
+      );
+    }
+
+    points = next;
+    amount *= 0.52;
+  }
+
+  return points;
+}
+
+function buildLightning(x: number, y: number, height: number, bornAt: number): LightningBolt {
+  const startY = Math.max(-30, y - Math.min(440, height * 0.6));
+  const start = { x: x + (Math.random() - 0.5) * 140, y: startY };
+  const main = midpointDisplace(start, { x, y }, 130, 5);
+  const branches: { x: number; y: number }[][] = [];
+  const branchCount = 2 + Math.floor(Math.random() * 3);
+
+  for (let index = 0; index < branchCount; index += 1) {
+    const originIndex = Math.min(
+      main.length - 3,
+      4 + Math.floor(Math.random() * Math.max(1, main.length - 10)),
+    );
+    const origin = main[originIndex];
+    const length = 46 + Math.random() * 96;
+    const drift = (Math.random() < 0.5 ? -1 : 1) * (0.35 + Math.random() * 0.75);
+    const end = {
+      x: origin.x + Math.sin(drift) * length,
+      y: origin.y + Math.cos(drift) * length * (0.55 + Math.random() * 0.45),
+    };
+    branches.push(midpointDisplace(origin, end, 42, 4));
+  }
+
+  return { bornAt, duration: 900, strikeX: x, strikeY: y, main, branches };
+}
+
+function tracePath(ctx: CanvasRenderingContext2D, points: { x: number; y: number }[]) {
+  ctx.beginPath();
+  points.forEach((point, index) => {
+    if (index === 0) {
+      ctx.moveTo(point.x, point.y);
+    } else {
+      ctx.lineTo(point.x, point.y);
+    }
+  });
+}
+
+function drawLightning(
+  ctx: CanvasRenderingContext2D,
+  bolt: LightningBolt,
+  now: number,
+  width: number,
+  height: number,
+) {
+  const progress = (now - bolt.bornAt) / bolt.duration;
+  if (progress >= 1) return;
+
+  let flicker: number;
+  if (progress < 0.14) {
+    flicker = 1;
+  } else if (progress < 0.22) {
+    flicker = 0.3;
+  } else if (progress < 0.34) {
+    flicker = 0.85;
+  } else {
+    flicker = Math.max(0, 1 - (progress - 0.34) / 0.5);
+  }
+  if (flicker <= 0.01) return;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  if (progress < 0.14) {
+    ctx.globalAlpha = 0.05 * (1 - progress / 0.14);
+    ctx.fillStyle = 'rgb(198, 224, 255)';
+    ctx.fillRect(0, 0, width, height);
+  }
+
+  const glow = ctx.createRadialGradient(
+    bolt.strikeX,
+    bolt.strikeY,
+    0,
+    bolt.strikeX,
+    bolt.strikeY,
+    54,
+  );
+  glow.addColorStop(0, `rgba(190, 222, 255, ${0.07 * flicker})`);
+  glow.addColorStop(1, 'rgba(190, 222, 255, 0)');
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(bolt.strikeX, bolt.strikeY, 54, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowColor = 'rgba(147, 197, 253, 0.5)';
+  ctx.shadowBlur = 9;
+
+  ctx.globalAlpha = 0.2 * flicker;
+  ctx.strokeStyle = 'rgba(147, 197, 253, 0.7)';
+  ctx.lineWidth = 3.2;
+  tracePath(ctx, bolt.main);
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.66 * flicker;
+  ctx.strokeStyle = 'rgba(228, 241, 255, 0.9)';
+  ctx.lineWidth = 1.4;
+  tracePath(ctx, bolt.main);
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.45 * flicker;
+  ctx.lineWidth = 0.9;
+  bolt.branches.forEach((branch) => {
+    tracePath(ctx, branch);
+    ctx.stroke();
+  });
+
+  ctx.restore();
+}
+
 function vectorFromPoint(point: WindPoint): WindVector {
   const radians = (point.directionDegrees * Math.PI) / 180;
   const speed = Math.max(2, point.speedMph);
@@ -321,13 +579,49 @@ function sampleWind(field: WindField, lon: number, lat: number) {
   return gridWind(field, lon, lat) ?? weightedWind(field, lon, lat);
 }
 
-function resetParticle(particle: Particle, width: number, height: number) {
-  particle.x = Math.random() * width;
-  particle.y = Math.random() * height;
-  particle.vx = 0;
-  particle.vy = 0;
+const MILES_PER_DEGREE = 69.05;
+const BASE_PX_PER_DEGREE = 8.74;
+const BASE_SIM_HOURS_PER_FRAME = 0.62;
+
+function boundsFromPoints(points: WindPoint[]): GeoBounds {
+  let minLon = Infinity;
+  let maxLon = -Infinity;
+  let minLat = Infinity;
+  let maxLat = -Infinity;
+
+  points.forEach((point) => {
+    minLon = Math.min(minLon, point.lon);
+    maxLon = Math.max(maxLon, point.lon);
+    minLat = Math.min(minLat, point.lat);
+    maxLat = Math.max(maxLat, point.lat);
+  });
+
+  return {
+    minLon: minLon - 0.75,
+    maxLon: maxLon + 0.75,
+    minLat: minLat - 0.75,
+    maxLat: maxLat + 0.75,
+  };
+}
+
+function intersectBounds(a: GeoBounds, b: GeoBounds): GeoBounds | null {
+  const bounds = {
+    minLon: Math.max(a.minLon, b.minLon),
+    maxLon: Math.min(a.maxLon, b.maxLon),
+    minLat: Math.max(a.minLat, b.minLat),
+    maxLat: Math.min(a.maxLat, b.maxLat),
+  };
+
+  return bounds.minLon < bounds.maxLon && bounds.minLat < bounds.maxLat ? bounds : null;
+}
+
+function resetParticle(particle: Particle, bounds: GeoBounds) {
+  particle.lon = bounds.minLon + Math.random() * (bounds.maxLon - bounds.minLon);
+  particle.lat = bounds.minLat + Math.random() * (bounds.maxLat - bounds.minLat);
+  particle.px = Number.NaN;
+  particle.py = Number.NaN;
   particle.age = 0;
-  particle.maxAge = 180 + Math.floor(Math.random() * 180);
+  particle.maxAge = 160 + Math.floor(Math.random() * 220);
 }
 
 function drawStaticWind(
@@ -433,13 +727,6 @@ function MapboxBackdrop({
         center: [-123.5, 40.5] as [number, number],
         zoom: window.innerWidth < 640 ? 2.0 : 2.62,
       };
-    }
-
-    function isInteractiveTarget(target: EventTarget | null) {
-      return (
-        target instanceof Element &&
-        Boolean(target.closest('a, button, input, textarea, select, [role="button"]'))
-      );
     }
 
     function touchGesture(touches: TouchList) {
@@ -708,6 +995,9 @@ function WindCanvas({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
+  const hurricanesRef = useRef<Hurricane[]>([]);
+  const boltsRef = useRef<LightningBolt[]>([]);
+  const effectCounterRef = useRef(0);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -721,6 +1011,10 @@ function WindCanvas({
     let width = 0;
     let height = 0;
     let raf = 0;
+    let lastFrameTime = 0;
+    let lastCameraKey = '';
+
+    const dataBounds = boundsFromPoints(field.points);
 
     const resize = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -737,16 +1031,74 @@ function WindCanvas({
         context.clearRect(0, 0, width, height);
       }
 
-      const count = Math.min(980, Math.max(240, Math.floor((width * height) / 1800)));
+      const count = Math.min(2400, Math.max(320, Math.floor((width * height) / 950)));
       particlesRef.current = Array.from({ length: count }, () => {
-        const particle = { x: 0, y: 0, vx: 0, vy: 0, age: 0, maxAge: 220 };
-        resetParticle(particle, width, height);
+        const particle = { lon: 0, lat: 0, px: Number.NaN, py: Number.NaN, age: 0, maxAge: 220 };
+        resetParticle(particle, dataBounds);
         particle.age = Math.floor(Math.random() * particle.maxAge);
         return particle;
       });
     };
 
-    const animate = () => {
+    const spawnEffect = (clientX: number, clientY: number) => {
+      const now = performance.now();
+      effectCounterRef.current += 1;
+
+      if (effectCounterRef.current % 2 === 1) {
+        const location = unprojectForView(mapRef.current, clientX, clientY, width, height);
+        hurricanesRef.current = [
+          ...hurricanesRef.current.slice(-2),
+          { lon: location.lon, lat: location.lat, bornAt: now, duration: 9000 },
+        ];
+      } else {
+        boltsRef.current = [
+          ...boltsRef.current.slice(-3),
+          buildLightning(clientX, clientY, height, now),
+        ];
+      }
+    };
+
+    const handleDoubleClick = (event: MouseEvent) => {
+      if (
+        reducedMotion ||
+        (!event.ctrlKey && !event.metaKey) ||
+        isInteractiveTarget(event.target)
+      ) {
+        return;
+      }
+
+      spawnEffect(event.clientX, event.clientY);
+    };
+
+    let lastTap: { time: number; x: number; y: number } | null = null;
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (
+        reducedMotion ||
+        event.touches.length > 0 ||
+        event.changedTouches.length < 2 ||
+        isInteractiveTarget(event.target)
+      ) {
+        return;
+      }
+
+      const touches = Array.from(event.changedTouches);
+      const x = touches.reduce((sum, touch) => sum + touch.clientX, 0) / touches.length;
+      const y = touches.reduce((sum, touch) => sum + touch.clientY, 0) / touches.length;
+      const now = performance.now();
+
+      if (
+        lastTap &&
+        now - lastTap.time < 340 &&
+        Math.hypot(x - lastTap.x, y - lastTap.y) < 40
+      ) {
+        spawnEffect(x, y);
+        lastTap = null;
+      } else {
+        lastTap = { time: now, x, y };
+      }
+    };
+
+    const animate = (now: number) => {
       if (reducedMotion) {
         if (useFallbackMap) {
           drawBaseMap(context, width, height);
@@ -757,68 +1109,176 @@ function WindCanvas({
         return;
       }
 
+      const dt = lastFrameTime ? Math.min(2.5, Math.max(0.4, (now - lastFrameTime) / 16.667)) : 1;
+      lastFrameTime = now;
       frame += 1;
 
+      const map = mapRef.current;
+
+      let cameraKey = 'static';
+      if (map) {
+        try {
+          const center = map.getCenter();
+          cameraKey = `${center.lng.toFixed(5)},${center.lat.toFixed(5)},${map
+            .getZoom()
+            .toFixed(4)}`;
+        } catch {
+          cameraKey = lastCameraKey;
+        }
+      }
+      const cameraMoved = cameraKey !== lastCameraKey && lastCameraKey !== '';
+      lastCameraKey = cameraKey;
+
       if (useFallbackMap) {
-        if (frame % 150 === 1) {
+        if (frame % 240 === 1) {
           drawBaseMap(context, width, height);
         }
-        context.fillStyle = 'rgba(2, 7, 17, 0.11)';
+        context.fillStyle = 'rgba(2, 7, 17, 0.08)';
         context.fillRect(0, 0, width, height);
       } else {
         context.save();
         context.globalCompositeOperation = 'destination-out';
-        context.fillStyle = 'rgba(0, 0, 0, 0.085)';
+        context.fillStyle = cameraMoved ? 'rgba(0, 0, 0, 0.42)' : 'rgba(0, 0, 0, 0.068)';
         context.fillRect(0, 0, width, height);
         context.restore();
       }
+
+      // Measure the projection scale so simulated time (not pixel speed) is the
+      // only tuning knob: relative speeds and directions stay geographically true.
+      const viewCenter = unprojectForView(map, width / 2, height / 2, width, height);
+      const west = projectForView(map, viewCenter.lon - 0.5, viewCenter.lat, width, height);
+      const east = projectForView(map, viewCenter.lon + 0.5, viewCenter.lat, width, height);
+      const pxPerDegree = Math.max(2, Math.abs(east.x - west.x));
+      const hoursPerFrame = Math.min(
+        1.3,
+        Math.max(0.1, BASE_SIM_HOURS_PER_FRAME * Math.sqrt(BASE_PX_PER_DEGREE / pxPerDegree)),
+      );
+
+      const viewBounds: GeoBounds = (() => {
+        const topLeft = unprojectForView(map, -40, -40, width, height);
+        const bottomRight = unprojectForView(map, width + 40, height + 40, width, height);
+        return {
+          minLon: Math.min(topLeft.lon, bottomRight.lon),
+          maxLon: Math.max(topLeft.lon, bottomRight.lon),
+          minLat: Math.min(topLeft.lat, bottomRight.lat),
+          maxLat: Math.max(topLeft.lat, bottomRight.lat),
+        };
+      })();
+      const spawnBounds = intersectBounds(viewBounds, dataBounds) ?? dataBounds;
+
+      hurricanesRef.current = hurricanesRef.current.filter(
+        (hurricane) => now - hurricane.bornAt < hurricane.duration,
+      );
+      const storms: ActiveStorm[] = [];
+      hurricanesRef.current.forEach((hurricane) => {
+        const envelope = stormEnvelope((now - hurricane.bornAt) / hurricane.duration);
+        if (envelope <= 0.001) return;
+
+        const center = projectForView(map, hurricane.lon, hurricane.lat, width, height);
+        storms.push({
+          cx: center.x,
+          cy: center.y,
+          coreRadius: Math.min(240, Math.max(48, 92 * (pxPerDegree / BASE_PX_PER_DEGREE))),
+          strength: 96 * envelope,
+        });
+      });
+
+      const respawn = (particle: Particle) => {
+        resetParticle(particle, spawnBounds);
+
+        if (storms.length && Math.random() < 0.4) {
+          const storm = storms[Math.floor(Math.random() * storms.length)];
+          const angle = Math.random() * Math.PI * 2;
+          const radius = storm.coreRadius * (0.25 + Math.random() * 2.4);
+          const location = unprojectForView(
+            map,
+            storm.cx + Math.cos(angle) * radius,
+            storm.cy + Math.sin(angle) * radius,
+            width,
+            height,
+          );
+
+          particle.lon = location.lon;
+          particle.lat = location.lat;
+        }
+      };
 
       context.lineCap = 'round';
       context.lineJoin = 'round';
       context.globalCompositeOperation = 'source-over';
 
       particlesRef.current.forEach((particle) => {
-        let windSpeed = 0;
-        const startX = particle.x;
-        const startY = particle.y;
-
-        for (let step = 0; step < 3; step += 1) {
-          const location = unprojectForView(mapRef.current, particle.x, particle.y, width, height);
-          const wind = sampleWind(field, location.lon, location.lat);
-          const factor = 0.18;
-
-          particle.vx = particle.vx * 0.72 + wind.x * factor * 0.28;
-          particle.vy = particle.vy * 0.72 + wind.y * factor * 0.28;
-          particle.x += particle.vx;
-          particle.y += particle.vy;
-          windSpeed = wind.speedMph;
+        if (cameraMoved || Number.isNaN(particle.px)) {
+          const projected = projectForView(map, particle.lon, particle.lat, width, height);
+          particle.px = projected.x;
+          particle.py = projected.y;
         }
 
-        particle.age += 1;
+        const startX = particle.px;
+        const startY = particle.py;
+        let renderSpeed = 0;
+
+        for (let step = 0; step < 2; step += 1) {
+          const wind = addStormWind(
+            storms,
+            startX,
+            startY,
+            sampleWind(field, particle.lon, particle.lat),
+          );
+          const hours = (hoursPerFrame * dt) / 2;
+          const cosLat = Math.max(0.2, Math.cos((particle.lat * Math.PI) / 180));
+
+          renderSpeed = Math.max(renderSpeed, Math.hypot(wind.x, wind.y));
+          particle.lon += (wind.x * hours) / (MILES_PER_DEGREE * cosLat);
+          particle.lat -= (wind.y * hours) / MILES_PER_DEGREE;
+        }
+
+        const end = projectForView(map, particle.lon, particle.lat, width, height);
+        particle.age += dt;
+
+        const outOfData =
+          particle.lon < dataBounds.minLon ||
+          particle.lon > dataBounds.maxLon ||
+          particle.lat < dataBounds.minLat ||
+          particle.lat > dataBounds.maxLat;
+        const nearStorm = storms.some(
+          (storm) =>
+            Math.hypot(end.x - storm.cx, end.y - storm.cy) < storm.coreRadius * 6,
+        );
+
         if (
           particle.age > particle.maxAge ||
-          particle.x < -40 ||
-          particle.x > width + 40 ||
-          particle.y < -40 ||
-          particle.y > height + 40
+          (outOfData && !nearStorm) ||
+          end.x < -60 ||
+          end.x > width + 60 ||
+          end.y < -60 ||
+          end.y > height + 60 ||
+          Math.random() < 0.0028 * dt
         ) {
-          resetParticle(particle, width, height);
+          respawn(particle);
           return;
         }
 
-        const lifeFade = Math.min(1, (particle.maxAge - particle.age) / 34);
-        const speedAlpha = Math.min(0.56, 0.12 + windSpeed / 115);
+        if (!cameraMoved) {
+          const fadeIn = Math.min(1, particle.age / 12);
+          const fadeOut = Math.min(1, (particle.maxAge - particle.age) / 30);
+          const speedAlpha = Math.min(0.88, 0.28 + renderSpeed / 80);
 
-        context.globalAlpha = Math.max(0.045, lifeFade * speedAlpha);
-        context.lineWidth = useFallbackMap ? 0.9 : Math.min(1.05, 0.46 + windSpeed / 125);
-        context.strokeStyle = useFallbackMap
-          ? 'rgba(174, 226, 255, 0.52)'
-          : 'rgba(211, 244, 255, 0.64)';
-        context.beginPath();
-        context.moveTo(startX, startY);
-        context.lineTo(particle.x, particle.y);
-        context.stroke();
+          context.globalAlpha = Math.max(0.03, fadeIn * fadeOut * speedAlpha);
+          context.lineWidth = Math.min(1.9, 0.75 + renderSpeed / 42);
+          context.strokeStyle = speedColor(renderSpeed);
+          context.beginPath();
+          context.moveTo(startX, startY);
+          context.lineTo(end.x, end.y);
+          context.stroke();
+        }
+
+        particle.px = end.x;
+        particle.py = end.y;
       });
+
+      boltsRef.current = boltsRef.current.filter((bolt) => now - bolt.bornAt < bolt.duration);
+      boltsRef.current.forEach((bolt) => drawLightning(context, bolt, now, width, height));
 
       context.globalAlpha = 1;
       context.globalCompositeOperation = 'source-over';
@@ -826,12 +1286,16 @@ function WindCanvas({
     };
 
     resize();
-    animate();
+    raf = requestAnimationFrame(animate);
     window.addEventListener('resize', resize);
+    window.addEventListener('dblclick', handleDoubleClick);
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('dblclick', handleDoubleClick);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [field, reducedMotion, useFallbackMap, mapRef]);
 
@@ -967,19 +1431,27 @@ export default function WindMode() {
           />
           <WindCanvas field={windField} useFallbackMap={!mapboxReady} mapRef={mapRef} />
           {showInteractionHint ? (
-            <div className="wind-interaction-hint pointer-events-none absolute right-[4.75rem] top-[4.25rem] z-50 flex w-44 items-center justify-center gap-2 rounded-md border border-sky-200/16 bg-[#05060b]/74 px-3 py-2 text-[10px] font-medium text-sky-100/70 shadow-[0_0_28px_rgba(56,189,248,0.16)] backdrop-blur-md sm:right-4 sm:top-[7.25rem] sm:w-auto sm:justify-start sm:text-[11px]">
-              <span className="hidden rounded border border-sky-100/18 bg-sky-100/8 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-sky-100/80 sm:inline">
-                Ctrl/Cmd
-              </span>
-              <span className="wind-interaction-track hidden sm:block" aria-hidden="true">
-                <span />
-              </span>
-              <span className="hidden sm:inline">drag / scroll</span>
-              <span className="wind-touch-dots sm:hidden" aria-hidden="true">
-                <span />
-                <span />
-              </span>
-              <span className="sm:hidden">2 fingers: move / zoom</span>
+            <div className="wind-interaction-hint pointer-events-none absolute right-[4.75rem] top-[4.25rem] z-50 flex w-48 flex-col items-center gap-1.5 rounded-md border border-sky-200/16 bg-[#05060b]/74 px-3 py-2 text-[10px] font-medium text-sky-100/70 shadow-[0_0_28px_rgba(56,189,248,0.16)] backdrop-blur-md sm:right-4 sm:top-[7.25rem] sm:w-auto sm:items-start sm:text-[11px]">
+              <div className="flex items-center justify-center gap-2 sm:justify-start">
+                <span className="hidden rounded border border-sky-100/18 bg-sky-100/8 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-sky-100/80 sm:inline">
+                  Ctrl/Cmd
+                </span>
+                <span className="wind-interaction-track hidden sm:block" aria-hidden="true">
+                  <span />
+                </span>
+                <span className="hidden sm:inline">drag / scroll</span>
+                <span className="wind-touch-dots sm:hidden" aria-hidden="true">
+                  <span />
+                  <span />
+                </span>
+                <span className="sm:hidden">2 fingers: move / zoom</span>
+              </div>
+              <div className="flex items-center justify-center gap-1.5 text-sky-100/60 sm:justify-start">
+                <span className="hidden sm:inline">
+                  Ctrl/Cmd double-click: hurricane / lightning
+                </span>
+                <span className="sm:hidden">2-finger double-tap: hurricane / lightning</span>
+              </div>
             </div>
           ) : null}
           <p className="absolute bottom-2 right-3 text-[8px] uppercase tracking-[0.14em] text-[#d6edf8]/24">

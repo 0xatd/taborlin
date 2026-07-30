@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export const revalidate = 900;
+export const dynamic = 'force-dynamic';
 
 type OpenMeteoPoint = {
   latitude?: number;
@@ -19,7 +20,8 @@ type WindPoint = {
   directionDegrees: number;
 };
 
-const OPEN_METEO_CHUNK_SIZE = 296;
+const OPEN_METEO_CHUNK_SIZE = 600;
+const OPEN_METEO_CHUNK_DELAY_MS = 500;
 
 function range(start: number, end: number, step: number) {
   return Array.from({ length: Math.floor((end - start) / step) + 1 }, (_, index) => {
@@ -28,8 +30,8 @@ function range(start: number, end: number, step: number) {
 }
 
 const WIND_GRID = {
-  latitudes: range(14, 60, 2),
-  longitudes: range(-156, -48, 3),
+  latitudes: range(14, 60, 2.5),
+  longitudes: range(-156, -48, 3.5),
 };
 
 const SAMPLE_POINTS = WIND_GRID.latitudes.flatMap((lat) =>
@@ -70,6 +72,12 @@ function chunkPoints<T>(points: T[], size: number) {
   return chunks;
 }
 
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 async function fetchOpenMeteoPoints(points: { lat: number; lon: number }[]) {
   const latitude = points.map((point) => point.lat).join(',');
   const longitude = points.map((point) => point.lon).join(',');
@@ -100,7 +108,17 @@ async function fetchOpenMeteoPoints(points: { lat: number; lon: number }[]) {
 export async function GET() {
   try {
     const chunks = chunkPoints(SAMPLE_POINTS, OPEN_METEO_CHUNK_SIZE);
-    const points = (await Promise.all(chunks.map(fetchOpenMeteoPoints))).flat();
+    const pointGroups: WindPoint[][] = [];
+
+    for (let index = 0; index < chunks.length; index += 1) {
+      pointGroups.push(await fetchOpenMeteoPoints(chunks[index]));
+
+      if (index < chunks.length - 1) {
+        await delay(OPEN_METEO_CHUNK_DELAY_MS);
+      }
+    }
+
+    const points = pointGroups.flat();
 
     return NextResponse.json(
       {
