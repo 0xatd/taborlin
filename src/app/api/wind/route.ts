@@ -47,6 +47,8 @@ const WORLD_BOUNDS = {
   minLat: -80,
   maxLat: 80,
 };
+const MAX_REQUESTED_ABS_LON = 720;
+const MAX_REQUESTED_ABS_LAT = 180;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -94,6 +96,15 @@ function parseBounds(url: URL): WindBounds {
     return DEFAULT_BOUNDS;
   }
 
+  if (
+    Math.abs(west) > MAX_REQUESTED_ABS_LON ||
+    Math.abs(east) > MAX_REQUESTED_ABS_LON ||
+    Math.abs(south) > MAX_REQUESTED_ABS_LAT ||
+    Math.abs(north) > MAX_REQUESTED_ABS_LAT
+  ) {
+    return DEFAULT_BOUNDS;
+  }
+
   let minLon = Math.min(west, east);
   let maxLon = Math.max(west, east);
   const rawLonSpan = maxLon - minLon;
@@ -103,15 +114,9 @@ function parseBounds(url: URL): WindBounds {
     minLon = WORLD_BOUNDS.minLon;
     maxLon = WORLD_BOUNDS.maxLon;
   } else {
-    while (maxLon < WORLD_BOUNDS.minLon) {
-      minLon += 360;
-      maxLon += 360;
-    }
-
-    while (minLon > WORLD_BOUNDS.maxLon) {
-      minLon -= 360;
-      maxLon -= 360;
-    }
+    const wrapOffset = Math.floor(((minLon + maxLon) / 2 + 180) / 360) * 360;
+    minLon -= wrapOffset;
+    maxLon -= wrapOffset;
   }
 
   let minLat = clamp(Math.min(south, north), WORLD_BOUNDS.minLat, WORLD_BOUNDS.maxLat);
