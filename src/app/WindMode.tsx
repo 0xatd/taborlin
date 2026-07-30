@@ -21,6 +21,7 @@ type WindPayload = {
   attribution: string;
   fetchedAt: string;
   dataUpdatedAt?: string | null;
+  bounds?: GeoBounds;
   grid?: WindGrid;
   points: WindPoint[];
 };
@@ -127,6 +128,7 @@ const SAMPLE_FALLBACK: WindPoint[] = [
 
 const DEFAULT_MAPBOX_STYLE_URL = 'mapbox://styles/mapbox/dark-v11';
 const WIND_REFRESH_MS = 5 * 60 * 1000;
+const WIND_CAMERA_DEBOUNCE_MS = 1200;
 const EMBEDDED_MAPBOX_CONFIG: MapboxConfig | null = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
   ? {
       token: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
@@ -174,6 +176,51 @@ function unprojectForView(
   }
 
   return unproject(x, y, width, height);
+}
+
+function quantizeBounds(bounds: GeoBounds): GeoBounds {
+  return {
+    minLon: Math.floor(bounds.minLon * 2) / 2,
+    maxLon: Math.ceil(bounds.maxLon * 2) / 2,
+    minLat: Math.floor(bounds.minLat * 2) / 2,
+    maxLat: Math.ceil(bounds.maxLat * 2) / 2,
+  };
+}
+
+function boundsKey(bounds: GeoBounds) {
+  return [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat].join(',');
+}
+
+function windUrl(bounds: GeoBounds | null) {
+  if (!bounds) return '/api/wind';
+
+  const requestBounds = quantizeBounds(bounds);
+  const params = new URLSearchParams({
+    west: String(requestBounds.minLon),
+    south: String(requestBounds.minLat),
+    east: String(requestBounds.maxLon),
+    north: String(requestBounds.maxLat),
+  });
+
+  return `/api/wind?${params.toString()}`;
+}
+
+function mapVisibleBounds(map: MapboxMap | null): GeoBounds | null {
+  if (!map) return null;
+
+  try {
+    const bounds = map.getBounds();
+    if (!bounds) return null;
+
+    return {
+      minLon: bounds.getWest(),
+      maxLon: bounds.getEast(),
+      minLat: bounds.getSouth(),
+      maxLat: bounds.getNorth(),
+    };
+  } catch {
+    return null;
+  }
 }
 
 function drawPath(
@@ -719,10 +766,12 @@ function WindToggleIcon() {
 function MapboxBackdrop({
   config,
   onReady,
+  onBoundsChange,
   mapRef,
 }: {
   config: MapboxConfig | null;
   onReady: (ready: boolean) => void;
+  onBoundsChange: (bounds: GeoBounds) => void;
   mapRef: MutableRefObject<MapboxMap | null>;
 }) {
   const mapNodeRef = useRef<HTMLDivElement>(null);
@@ -785,6 +834,27 @@ function MapboxBackdrop({
         });
         mapRef.current = map;
         map.addControl(new mapboxgl.AttributionControl({ compact: false }), 'bottom-left');
+        let boundsTimer = 0;
+        let lastPublishedBoundsKey = '';
+
+        const publishBounds = () => {
+          if (!map || cancelled) return;
+
+          const bounds = mapVisibleBounds(map);
+          if (!bounds) return;
+
+          const quantized = quantizeBounds(bounds);
+          const key = boundsKey(quantized);
+          if (key === lastPublishedBoundsKey) return;
+
+          lastPublishedBoundsKey = key;
+          onBoundsChange(quantized);
+        };
+
+        const scheduleBounds = () => {
+          window.clearTimeout(boundsTimer);
+          boundsTimer = window.setTimeout(publishBounds, WIND_CAMERA_DEBOUNCE_MS);
+        };
 
         const syncCameraMarker = () => {
           if (!map) {
@@ -802,6 +872,8 @@ function MapboxBackdrop({
             container.dataset.zoom = '';
             container.dataset.center = '';
           }
+
+          scheduleBounds();
         };
         syncCameraMarker();
         map.on('move', syncCameraMarker);
@@ -809,6 +881,7 @@ function MapboxBackdrop({
         const markReady = () => {
           if (!cancelled) {
             map?.resize();
+            publishBounds();
             onReady(true);
           }
         };
@@ -820,6 +893,7 @@ function MapboxBackdrop({
           if (!map) return;
           const camera = viewportCamera();
           map.easeTo({ ...camera, duration: 0 });
+          publishBounds();
         };
 
         window.addEventListener('resize', handleResize);
@@ -964,6 +1038,8 @@ function MapboxBackdrop({
         const cleanupExisting = cleanupResize;
         cleanupResize = () => {
           cleanupExisting?.();
+          window.clearTimeout(boundsTimer);
+          map?.off('move', syncCameraMarker);
           window.removeEventListener('wheel', handleWheel);
           window.removeEventListener('pointerdown', handlePointerDown);
           window.removeEventListener('pointermove', handlePointerMove);
@@ -991,7 +1067,7 @@ function MapboxBackdrop({
       mapRef.current = null;
       onReady(false);
     };
-  }, [config, mapRef, onReady]);
+  }, [config, mapRef, onBoundsChange, onReady]);
 
   if (!config) return null;
 
@@ -1326,12 +1402,14 @@ export default function WindMode() {
   const [enabled, setEnabled] = useState(false);
   const [loadedPreference, setLoadedPreference] = useState(false);
   const [payload, setPayload] = useState<WindPayload | null>(null);
+  const [windBounds, setWindBounds] = useState<GeoBounds | null>(null);
   const [mapboxConfig, setMapboxConfig] = useState<MapboxConfig | null>(null);
   const [mapboxReady, setMapboxReady] = useState(false);
   const [showInteractionHint, setShowInteractionHint] = useState(false);
   const mapboxRequestedRef = useRef(false);
   const mapRef = useRef<MapboxMap | null>(null);
   const activeMapboxConfig = EMBEDDED_MAPBOX_CONFIG ?? mapboxConfig;
+  const windRequestUrl = useMemo(() => windUrl(windBounds), [windBounds]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -1355,7 +1433,7 @@ export default function WindMode() {
     let refreshTimer = 0;
 
     const refreshWind = () => {
-      fetch('/api/wind')
+      fetch(windRequestUrl)
         .then((response) => response.json() as Promise<WindPayload>)
         .then((data) => {
           if (!cancelled) {
@@ -1364,13 +1442,15 @@ export default function WindMode() {
         })
         .catch(() => {
           if (!cancelled) {
-            setPayload({
-              source: 'fallback',
-              attribution: 'Wind field fallback while Open-Meteo is unavailable',
-              fetchedAt: new Date().toISOString(),
-              dataUpdatedAt: null,
-              points: SAMPLE_FALLBACK,
-            });
+            setPayload((current) =>
+              current ?? {
+                source: 'fallback',
+                attribution: 'Wind field fallback while Open-Meteo is unavailable',
+                fetchedAt: new Date().toISOString(),
+                dataUpdatedAt: null,
+                points: SAMPLE_FALLBACK,
+              },
+            );
           }
         });
     };
@@ -1382,7 +1462,7 @@ export default function WindMode() {
       cancelled = true;
       window.clearInterval(refreshTimer);
     };
-  }, [enabled, loadedPreference]);
+  }, [enabled, loadedPreference, windRequestUrl]);
 
   useEffect(() => {
     if (!enabled || activeMapboxConfig || mapboxRequestedRef.current) return;
@@ -1453,7 +1533,12 @@ export default function WindMode() {
     <>
       {enabled ? (
         <div className="fixed inset-0 z-0 overflow-hidden bg-[#020711]">
-          <MapboxBackdrop config={activeMapboxConfig} onReady={setMapboxReady} mapRef={mapRef} />
+          <MapboxBackdrop
+            config={activeMapboxConfig}
+            onReady={setMapboxReady}
+            onBoundsChange={setWindBounds}
+            mapRef={mapRef}
+          />
           <div className="absolute inset-0 bg-[#05060b]/36" aria-hidden="true" />
           <div
             className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(31,105,150,0.16),transparent_32%),radial-gradient(circle_at_68%_42%,rgba(5,18,29,0.24),transparent_38%)]"
