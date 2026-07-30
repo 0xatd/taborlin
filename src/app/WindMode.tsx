@@ -664,6 +664,10 @@ function intersectBounds(a: GeoBounds, b: GeoBounds): GeoBounds | null {
   return bounds.minLon < bounds.maxLon && bounds.minLat < bounds.maxLat ? bounds : null;
 }
 
+function boundsArea(bounds: GeoBounds) {
+  return Math.max(0, bounds.maxLon - bounds.minLon) * Math.max(0, bounds.maxLat - bounds.minLat);
+}
+
 function resetParticle(particle: Particle, bounds: GeoBounds) {
   particle.lon = bounds.minLon + Math.random() * (bounds.maxLon - bounds.minLon);
   particle.lat = bounds.minLat + Math.random() * (bounds.maxLat - bounds.minLat);
@@ -1234,7 +1238,7 @@ function WindCanvas({
       } else {
         context.save();
         context.globalCompositeOperation = 'destination-out';
-        context.fillStyle = cameraMoved ? 'rgba(0, 0, 0, 0.42)' : 'rgba(0, 0, 0, 0.068)';
+        context.fillStyle = cameraMoved ? 'rgba(0, 0, 0, 0.18)' : 'rgba(0, 0, 0, 0.068)';
         context.fillRect(0, 0, width, height);
         context.restore();
       }
@@ -1260,7 +1264,12 @@ function WindCanvas({
           maxLat: Math.max(topLeft.lat, bottomRight.lat),
         };
       })();
-      const spawnBounds = intersectBounds(viewBounds, dataBounds) ?? dataBounds;
+      const visibleDataBounds = intersectBounds(viewBounds, dataBounds);
+      const visibleDataCoverage = visibleDataBounds
+        ? boundsArea(visibleDataBounds) / Math.max(1, boundsArea(viewBounds))
+        : 0;
+      const bridgeViewportWind = visibleDataCoverage < 0.72;
+      const spawnBounds = bridgeViewportWind ? viewBounds : visibleDataBounds ?? dataBounds;
 
       hurricanesRef.current = hurricanesRef.current.filter(
         (hurricane) => now - hurricane.bornAt < hurricane.duration,
@@ -1344,7 +1353,7 @@ function WindCanvas({
 
         if (
           particle.age > particle.maxAge ||
-          (outOfData && !nearStorm) ||
+          (outOfData && !bridgeViewportWind && !nearStorm) ||
           end.x < -60 ||
           end.x > width + 60 ||
           end.y < -60 ||
@@ -1355,19 +1364,18 @@ function WindCanvas({
           return;
         }
 
-        if (!cameraMoved) {
-          const fadeIn = Math.min(1, particle.age / 12);
-          const fadeOut = Math.min(1, (particle.maxAge - particle.age) / 30);
-          const speedAlpha = Math.min(0.88, 0.28 + renderSpeed / 80);
+        const fadeIn = Math.min(1, particle.age / 12);
+        const fadeOut = Math.min(1, (particle.maxAge - particle.age) / 30);
+        const speedAlpha = Math.min(0.88, 0.28 + renderSpeed / 80);
+        const cameraAlpha = cameraMoved ? 0.7 : 1;
 
-          context.globalAlpha = Math.max(0.03, fadeIn * fadeOut * speedAlpha);
-          context.lineWidth = Math.min(1.9, 0.75 + renderSpeed / 42);
-          context.strokeStyle = speedColor(renderSpeed);
-          context.beginPath();
-          context.moveTo(startX, startY);
-          context.lineTo(end.x, end.y);
-          context.stroke();
-        }
+        context.globalAlpha = Math.max(0.03, fadeIn * fadeOut * speedAlpha * cameraAlpha);
+        context.lineWidth = Math.min(1.9, 0.75 + renderSpeed / 42);
+        context.strokeStyle = speedColor(renderSpeed);
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.lineTo(end.x, end.y);
+        context.stroke();
 
         particle.px = end.x;
         particle.py = end.y;
