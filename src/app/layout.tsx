@@ -9,11 +9,11 @@ export const metadata: Metadata = {
     template: '%s — Taborlin',
   },
   description:
-    'Taborlin builds and operates its own software products and takes on selected consulting work for teams that need practical software, automation, and agent operations.',
+    'Taborlin builds and operates software products across AI credits, weather markets, AI video, sales tooling, social ops, maps, and crypto workflows.',
   openGraph: {
     title: 'Taborlin | Product Studio and Software Consulting',
     description:
-      'Taborlin builds and operates its own software products and takes on selected consulting work for teams that need practical software, automation, and agent operations.',
+      'Taborlin builds and operates software products across AI credits, weather markets, AI video, sales tooling, social ops, maps, and crypto workflows.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Taborlin | Product Studio and Software Consulting',
     description:
-      'Taborlin builds and operates its own software products and takes on selected consulting work for teams that need practical software, automation, and agent operations.',
+      'Taborlin builds and operates software products across AI credits, weather markets, AI video, sales tooling, social ops, maps, and crypto workflows.',
   },
   alternates: {
     canonical: 'https://taborlin.co',
@@ -46,7 +46,7 @@ export default function RootLayout({
               name: 'Taborlin',
               url: 'https://taborlin.co',
               description:
-                'Taborlin builds and operates its own software products and takes on selected consulting work for teams that need practical software, automation, and agent operations.',
+                'Taborlin builds and operates software products across AI credits, weather markets, AI video, sales tooling, social ops, maps, and crypto workflows.',
               sameAs: [
                 'https://cheaptokens.ai',
                 'https://sonde.taborlin.co',

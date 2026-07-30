@@ -100,7 +100,7 @@ export default function LogoStrip() {
     <section className="pb-20 sm:pb-24">
       <div className="max-w-4xl mx-auto px-6 mb-8 text-center">
         <p className="text-xs text-[#a1a1aa]/40 uppercase tracking-widest">
-          Experience behind the studio
+          Principal/operator track record
         </p>
       </div>
       {/*
