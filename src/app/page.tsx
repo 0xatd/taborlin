@@ -4,13 +4,13 @@ import LogoStrip from './LogoStrip';
 import WindMode from './WindMode';
 
 export const metadata: Metadata = {
-  title: 'Taborlin — Software Businesses Built With Agents',
+  title: 'Taborlin | Product Studio and Software Consulting',
   description:
-    'Taborlin builds and operates focused software businesses with agent workflows, payments, approvals, and production controls built in.',
+    'Taborlin builds and operates its own software products and takes on selected consulting work for teams that need practical software, automation, and agent operations.',
   openGraph: {
-    title: 'Taborlin — Software Businesses Built With Agents',
+    title: 'Taborlin | Product Studio and Software Consulting',
     description:
-      'Taborlin builds and operates focused software businesses with agent workflows, payments, approvals, and production controls built in.',
+      'Taborlin builds and operates its own software products and takes on selected consulting work for teams that need practical software, automation, and agent operations.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -20,10 +20,19 @@ export const metadata: Metadata = {
   },
 };
 
-const stats = [
-  { value: 'Build', label: 'Focused products aimed at real customer workflows' },
-  { value: 'Operate', label: 'Agents handle the repetitive work behind approvals and audit trails' },
-  { value: 'Learn', label: 'Revenue, usage, and support signal decide what gets more investment' },
+const studioModel = [
+  {
+    value: 'Owned products',
+    label: 'Live software businesses we build, operate, and learn from directly',
+  },
+  {
+    value: 'Client builds',
+    label: 'MVPs, internal tools, data products, APIs, and automation for selected teams',
+  },
+  {
+    value: 'Agent operations',
+    label: 'Research, monitoring, QA, reconciliation, reporting, and follow-up behind human approval',
+  },
 ];
 
 const work = [
@@ -33,7 +42,7 @@ const work = [
     url: 'https://cheaptokens.ai',
     status: 'Live product',
     description:
-      'Buy discounted Venice-compatible API credits, test models in the playground, and pay with card or x402. The product handles checkout, key issuance, account balances, and reconciliation.',
+      'Discounted Venice-compatible API credits with card and x402 checkout, key issuance, balances, usage, and reconciliation built into the product.',
   },
   {
     title: 'Sonde',
@@ -41,7 +50,7 @@ const work = [
     url: 'https://sonde.taborlin.co',
     status: 'Live preview',
     description:
-      'A public weather-market scanner using real Kalshi, Polymarket, and Open-Meteo data. Proprietary forecast and API surfaces are being staged behind the current free preview.',
+      'Weather prediction-market intelligence built on live Kalshi, Polymarket, and Open-Meteo data, with proprietary forecast and API surfaces staged behind the public preview.',
   },
   {
     title: 'Studio',
@@ -49,7 +58,7 @@ const work = [
     url: 'https://studio.taborlin.co',
     status: 'Live product',
     description:
-      'Storyboard Studio helps creators block scenes in 3D, generate video takes with their own Venice key, compare results, and keep project assets organized.',
+      'A storyboard and AI video direction workspace where creators block scenes in 3D, generate takes with their own Venice key, and keep project assets organized.',
   },
   {
     title: 'Champion',
@@ -57,7 +66,7 @@ const work = [
     url: 'https://champion.taborlin.co',
     status: 'Live product',
     description:
-      'A personal sales workspace for AE and BD operators. Champion keeps account research, relationship history, meeting prep, stale-deal revival, and CRM handoff in one place.',
+      'A portable revenue-memory workspace for account research, relationship history, meeting prep, stale-deal revival, and CRM handoff.',
   },
   {
     title: 'Soshi',
@@ -65,7 +74,7 @@ const work = [
     url: 'https://soshi.taborlin.co',
     status: 'Live product',
     description:
-      'Plan posts, review AI drafts, schedule approved content, track replies, and keep social growth moving without letting agents publish unchecked.',
+      'Approval-first social operations: plan posts, review drafts, schedule approved content, track replies, and keep distribution moving without unchecked agent publishing.',
   },
   {
     title: 'Spatix',
@@ -73,7 +82,7 @@ const work = [
     url: 'https://spatix.io',
     status: 'Open-source tool',
     description:
-      'Create maps without GIS friction. Spatix turns files, geodata, and agent requests into shareable maps through a web app, API, and MCP surface.',
+      'Map creation without GIS friction. Spatix turns files, geodata, and agent requests into shareable maps through a web app, API, and MCP surface.',
   },
   {
     title: 'Open Crypto Tax Helper',
@@ -81,30 +90,30 @@ const work = [
     url: 'https://onchain-wallets-dashboard.vercel.app',
     status: 'Open-source tool',
     description:
-      'A self-hosted wallet and transaction organizer for missing-cost-basis review. Agents can propose fixes while humans approve changes with an audit trail.',
+      'A self-hosted wallet and transaction organizer for cost-basis review, agent-proposed fixes, human approval, and audit trails.',
   },
 ];
 
-const capabilities = [
+const services = [
   {
-    title: 'Revenue-first builds',
+    title: 'Product builds',
     description:
-      'We prefer products with a clear path to payment: API credits, workflow software, market data, sales tools, and services where speed matters.',
+      'Focused MVPs and workflow products for founders, operators, and small teams that already know the job they need software to do.',
   },
   {
-    title: 'Agent operations',
+    title: 'Automation and agent ops',
     description:
-      'Agents do the research, drafting, monitoring, reconciliation, and follow-up. Humans approve the parts that create risk or represent the company.',
+      'Research, data collection, drafting, QA, reporting, reconciliation, and follow-up loops that run continuously with approvals where risk matters.',
   },
   {
-    title: 'Trust controls',
+    title: 'Data and API products',
     description:
-      'Payments, credentials, publishing, customer data, and external actions get explicit controls: approvals, audit logs, limits, and visible failure states.',
+      'Market-data tools, weather products, crypto workflows, dashboards, feeds, and APIs where freshness, provenance, and reliability matter.',
   },
   {
-    title: 'Distribution loops',
+    title: 'Technical rescue',
     description:
-      'Every product needs a route to users. We build around repeatable outreach, public proof, useful APIs, and operator workflows that compound over time.',
+      'Audit, stabilize, simplify, and ship stalled software. We are useful when a product is close but messy, slow, fragile, or missing the operating layer.',
   },
 ];
 
@@ -119,8 +128,14 @@ function Navbar() {
           <a href="#work" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
             Products
           </a>
-          <a href="#capabilities" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden sm:block">
-            Approach
+          <a href="#services" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden sm:block">
+            Services
+          </a>
+          <Link href="/updates" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden sm:block">
+            Updates
+          </Link>
+          <a href="#contact" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden md:block">
+            Contact
           </a>
           <a
             href="mailto:hello@taborlin.co"
@@ -141,29 +156,30 @@ function Hero() {
         <div className="animate-fade-in">
           <h1 className="text-[2rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-[#fafafa] tracking-tight leading-[1.18] sm:leading-[1.15]">
             <span className="block">
-              <span className="block sm:inline">Small software</span>{' '}
-              <span className="block sm:inline">businesses,</span>
+              <span className="block sm:inline">We build and run</span>{' '}
+              <span className="block sm:inline">software products.</span>
             </span>
             <span className="block text-[#a1a1aa]">
-              <span className="block sm:inline">built with agents.</span>
+              <span className="block sm:inline">We help serious teams do the same.</span>
             </span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
-            Taborlin builds focused internet products where agents sell, research,
-            reconcile, monitor, and route decisions back to humans when judgment matters.
+            Taborlin is a product studio and software consulting shop. We own live
+            products, take on selected client builds, and use agents for the repetitive
+            work behind research, QA, reporting, reconciliation, and follow-up.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
               href="#work"
               className="text-sm text-[#06060B] bg-[#fafafa] hover:bg-[#e4e4e7] transition-colors px-5 py-2.5 rounded-md font-medium"
             >
-              See what we run
+              View products
             </a>
             <a
               href="mailto:hello@taborlin.co"
               className="text-sm text-[#fafafa] border border-[#2a2a35] hover:border-[#3a3a45] transition-colors px-5 py-2.5 rounded-md font-medium"
             >
-              Work with us
+              Start a project
             </a>
           </div>
         </div>
@@ -172,15 +188,15 @@ function Hero() {
   );
 }
 
-function Stats() {
+function StudioModel() {
   return (
     <section className="pb-20 sm:pb-24">
       <div className="max-w-4xl mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 border border-[#1f1f28] rounded-xl p-6 sm:p-8 bg-[#0a0a10]">
-          {stats.map((stat, i) => (
-            <div key={stat.label} className={`text-center ${i < stats.length - 1 ? 'sm:border-r sm:border-[#1f1f28]' : ''}`}>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border border-[#1f1f28] rounded-xl p-6 sm:p-8 bg-[#0a0a10]">
+          {studioModel.map((stat, i) => (
+            <div key={stat.label} className={`text-left ${i < studioModel.length - 1 ? 'sm:border-r sm:border-[#1f1f28] sm:pr-6' : ''}`}>
               <p className="text-2xl sm:text-3xl font-semibold text-[#fafafa] tracking-tight">{stat.value}</p>
-              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-1">{stat.label}</p>
+              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-2 leading-relaxed">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -194,9 +210,9 @@ function Work() {
     <section id="work" className="py-20 sm:py-24 border-t border-[#1f1f28]">
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">What We Run</h2>
+          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products We Operate</h2>
           <p className="text-sm text-[#a1a1aa]">
-            Public products, previews, and tools that show how we think about agent-operated software.
+            Owned products, previews, and open tools. This is the proof behind the consulting work.
           </p>
         </div>
         <div className="space-y-4">
@@ -235,16 +251,19 @@ function Work() {
   );
 }
 
-function Capabilities() {
+function Services() {
   return (
-    <section id="capabilities" className="py-20 sm:py-24 border-t border-[#1f1f28]">
+    <section id="services" className="py-20 sm:py-24 border-t border-[#1f1f28]">
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Operating Model</h2>
-          <p className="text-sm text-[#a1a1aa]">How we decide what to build and what deserves more time</p>
+          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Work We Take On</h2>
+          <p className="text-sm text-[#a1a1aa]">
+            Consulting work has to be specific. The best fit is a real workflow, a product owner,
+            and a reason to ship now.
+          </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {capabilities.map((cap) => (
+          {services.map((cap) => (
             <div key={cap.title} className="bg-[#0a0a10] border border-[#1f1f28] rounded-xl p-6">
               <h3 className="text-sm font-semibold text-[#fafafa] mb-3">{cap.title}</h3>
               <p className="text-sm text-[#a1a1aa] leading-relaxed">{cap.description}</p>
@@ -260,10 +279,10 @@ function Contact() {
   return (
     <section id="contact" className="py-20 sm:py-24 border-t border-[#1f1f28]">
       <div className="max-w-4xl mx-auto px-6 text-center">
-        <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">Bring a sharp problem</h2>
+        <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">Have something specific to build?</h2>
         <p className="text-sm text-[#a1a1aa] mb-8 max-w-md mx-auto leading-relaxed">
-          We are most useful when there is a real workflow, a real customer,
-          and a reason agents can make the operation faster or cheaper.
+          Send the workflow, the customer, the current workaround, and what happens if it ships.
+          If there is a real business case, we will tell you how we would attack it.
         </p>
         <a
           href="mailto:hello@taborlin.co"
@@ -283,7 +302,8 @@ function Footer() {
         <p className="text-xs text-[#a1a1aa]/40">&copy; 2026 Taborlin</p>
         <div className="flex gap-6 text-xs text-[#a1a1aa]/40">
           <a href="#work" className="hover:text-[#a1a1aa] transition-colors">Work</a>
-          <a href="#capabilities" className="hover:text-[#a1a1aa] transition-colors">Approach</a>
+          <a href="#services" className="hover:text-[#a1a1aa] transition-colors">Services</a>
+          <Link href="/updates" className="hover:text-[#a1a1aa] transition-colors">Updates</Link>
           <a href="mailto:hello@taborlin.co" className="hover:text-[#a1a1aa] transition-colors">Email</a>
         </div>
       </div>
@@ -298,10 +318,10 @@ export default function HomePage() {
       <Navbar />
       <main className="relative z-10">
         <Hero />
-        <Stats />
+        <StudioModel />
         <LogoStrip />
         <Work />
-        <Capabilities />
+        <Services />
         <Contact />
       </main>
       <div className="relative z-10">
