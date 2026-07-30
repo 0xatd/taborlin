@@ -6,11 +6,11 @@ import WindMode from './WindMode';
 export const metadata: Metadata = {
   title: 'Taborlin | Product Studio and Software Consulting',
   description:
-    'Taborlin builds and operates its own software products and takes on selected consulting work for teams that need practical software, automation, and agent operations.',
+    'Taborlin builds and operates software products across AI credits, weather markets, AI video, sales tooling, social ops, maps, and crypto workflows.',
   openGraph: {
     title: 'Taborlin | Product Studio and Software Consulting',
     description:
-      'Taborlin builds and operates its own software products and takes on selected consulting work for teams that need practical software, automation, and agent operations.',
+      'Taborlin builds and operates software products across AI credits, weather markets, AI video, sales tooling, social ops, maps, and crypto workflows.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -20,18 +20,27 @@ export const metadata: Metadata = {
   },
 };
 
-const studioModel = [
+const proofPoints = [
   {
-    value: 'Owned products',
-    label: 'Live software businesses we build, operate, and learn from directly',
+    value: '11',
+    eyebrow: 'companies',
+    label: 'Principal/operator experience behind the studio',
+    detail:
+      'Career work across Esri, DTN, Enterprise Holdings, Grubhub, AIG, Everbridge, WeatherXM, and more.',
   },
   {
-    value: 'Client builds',
-    label: 'MVPs, internal tools, data products, APIs, and automation for selected teams',
+    value: '7',
+    eyebrow: 'public products and tools',
+    label: 'Taborlin products and tools live now',
+    detail:
+      'CheapTokens, Sonde, Studio, Champion, Soshi, Spatix, and Open Crypto Tax Helper are public and inspectable.',
   },
   {
-    value: 'Agent operations',
-    label: 'Research, monitoring, QA, reconciliation, reporting, and follow-up behind human approval',
+    value: '2',
+    eyebrow: 'payment rails',
+    label: 'Card checkout plus Base USDC/x402 in production',
+    detail:
+      'CheapTokens handles purchases, API-key issuance, balances, and reconciliation in production.',
   },
 ];
 
@@ -98,22 +107,22 @@ const services = [
   {
     title: 'Product builds',
     description:
-      'Focused MVPs and workflow products for founders, operators, and small teams that already know the job they need software to do.',
+      'MVPs and workflow products that need to become real software: auth, data models, APIs, admin surfaces, deployments, docs, and handoff.',
   },
   {
     title: 'Automation and agent ops',
     description:
-      'Research, data collection, drafting, QA, reporting, reconciliation, and follow-up loops that run continuously with approvals where risk matters.',
+      'Approval-gated loops for research, monitoring, QA, reconciliation, reporting, and follow-up when failure has business consequences.',
   },
   {
     title: 'Data and API products',
     description:
-      'Market-data tools, weather products, crypto workflows, dashboards, feeds, and APIs where freshness, provenance, and reliability matter.',
+      'Weather, market, crypto, and operations data products with freshness, provenance, rate limits, monitoring, and customer-ready docs.',
   },
   {
     title: 'Technical rescue',
     description:
-      'Audit, stabilize, simplify, and ship stalled software. We are useful when a product is close but messy, slow, fragile, or missing the operating layer.',
+      'Take a stalled build, find the risky paths, reduce scope, pass the production build, deploy, and leave the system easier to run.',
   },
 ];
 
@@ -161,9 +170,10 @@ function Hero() {
             </span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
-            Taborlin is a product studio and software consulting shop. We own live
-            products, take on selected client builds, and use agents for the repetitive
-            work behind research, QA, reporting, reconciliation, and follow-up.
+            Taborlin is a product studio and selected consulting practice. The firm
+            operates a public portfolio across AI credits, weather markets, AI video,
+            social operations, sales tooling, maps, and crypto records. The consulting
+            work is backed by a principal/operator track record across the companies below.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
@@ -189,11 +199,20 @@ function StudioModel() {
   return (
     <section className="pb-20 sm:pb-24">
       <div className="max-w-4xl mx-auto px-6">
+        <div className="mb-5 max-w-2xl">
+          <p className="text-xs text-[#a1a1aa]/40 uppercase tracking-widest mb-3">Track record</p>
+          <p className="text-sm text-[#a1a1aa] leading-relaxed">
+            Taborlin&apos;s own portfolio is separate from the principal career track
+            record behind the work. The public numbers below keep those lanes clear.
+          </p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border border-[#1f1f28] rounded-xl p-6 sm:p-8 bg-[#0a0a10]">
-          {studioModel.map((stat, i) => (
-            <div key={stat.label} className={`text-left ${i < studioModel.length - 1 ? 'sm:border-r sm:border-[#1f1f28] sm:pr-6' : ''}`}>
-              <p className="text-2xl sm:text-3xl font-semibold text-[#fafafa] tracking-tight">{stat.value}</p>
-              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-2 leading-relaxed">{stat.label}</p>
+          {proofPoints.map((stat, i) => (
+            <div key={stat.label} className={`text-left ${i < proofPoints.length - 1 ? 'sm:border-r sm:border-[#1f1f28] sm:pr-6' : ''}`}>
+              <p className="text-[0.65rem] text-[#a1a1aa]/40 uppercase tracking-widest">{stat.eyebrow}</p>
+              <p className="mt-3 text-4xl sm:text-5xl font-semibold text-[#fafafa] tracking-tight">{stat.value}</p>
+              <p className="text-sm text-[#fafafa] mt-3 leading-snug">{stat.label}</p>
+              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-2 leading-relaxed">{stat.detail}</p>
             </div>
           ))}
         </div>
@@ -209,7 +228,8 @@ function Work() {
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products We Operate</h2>
           <p className="text-sm text-[#a1a1aa]">
-            Owned products, previews, and open tools. This is the proof behind the consulting work.
+            Taborlin&apos;s public portfolio: five live products/previews and two public tools.
+            This is separate from the principal career track record above.
           </p>
         </div>
         <div className="space-y-4">
