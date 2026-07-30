@@ -1437,7 +1437,13 @@ export default function WindMode() {
         .then((response) => response.json() as Promise<WindPayload>)
         .then((data) => {
           if (!cancelled) {
-            setPayload(data);
+            setPayload((current) => {
+              if (current?.source === 'Open-Meteo' && data.source !== 'Open-Meteo') {
+                return current;
+              }
+
+              return data;
+            });
           }
         })
         .catch(() => {

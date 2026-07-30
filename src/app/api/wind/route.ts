@@ -33,13 +33,13 @@ type SanitizedWindPoint = WindPoint & {
 
 const OPEN_METEO_CHUNK_SIZE = 600;
 const OPEN_METEO_CHUNK_DELAY_MS = 500;
-const DEFAULT_MAX_SAMPLE_POINTS = 589;
+const DEFAULT_MAX_SAMPLE_POINTS = 220;
 const VIEWPORT_MAX_SAMPLE_POINTS = 220;
 const DEFAULT_BOUNDS: WindBounds = {
-  minLon: -156,
-  maxLon: -51,
-  minLat: 14,
-  maxLat: 59,
+  minLon: -215,
+  maxLon: -32,
+  minLat: -8.5,
+  maxLat: 76.5,
 };
 const WORLD_BOUNDS = {
   minLon: -180,
@@ -152,6 +152,44 @@ function hasRequestedBounds(url: URL) {
   );
 }
 
+function isBroadDefaultCamera(bounds: WindBounds) {
+  const centerLon = (bounds.minLon + bounds.maxLon) / 2;
+  const centerLat = (bounds.minLat + bounds.maxLat) / 2;
+  const lonSpan = bounds.maxLon - bounds.minLon;
+  const latSpan = bounds.maxLat - bounds.minLat;
+
+  return (
+    lonSpan >= 55 &&
+    latSpan >= 45 &&
+    centerLon >= -170 &&
+    centerLon <= -60 &&
+    centerLat >= -5 &&
+    centerLat <= 65
+  );
+}
+
+function snapBounds(bounds: WindBounds) {
+  const lonSpan = bounds.maxLon - bounds.minLon;
+  const latSpan = bounds.maxLat - bounds.minLat;
+  const lonStep = lonSpan >= 80 ? 20 : 10;
+  const latStep = latSpan >= 55 ? 15 : 10;
+
+  return {
+    minLon: Math.floor(bounds.minLon / lonStep) * lonStep,
+    maxLon: Math.ceil(bounds.maxLon / lonStep) * lonStep,
+    minLat: clamp(Math.floor(bounds.minLat / latStep) * latStep, WORLD_BOUNDS.minLat, WORLD_BOUNDS.maxLat),
+    maxLat: clamp(Math.ceil(bounds.maxLat / latStep) * latStep, WORLD_BOUNDS.minLat, WORLD_BOUNDS.maxLat),
+  };
+}
+
+function canonicalBounds(bounds: WindBounds, requestedBounds: boolean) {
+  if (!requestedBounds || isBroadDefaultCamera(bounds)) {
+    return DEFAULT_BOUNDS;
+  }
+
+  return snapBounds(bounds);
+}
+
 function buildGrid(bounds: WindBounds, maxSamplePoints: number) {
   const lonSpan = Math.max(1, bounds.maxLon - bounds.minLon);
   const latSpan = Math.max(1, bounds.maxLat - bounds.minLat);
@@ -248,10 +286,11 @@ async function fetchOpenMeteoPoints(points: { lat: number; lon: number }[]) {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const bounds = parseBounds(url);
+  const requestedBounds = hasRequestedBounds(url);
+  const bounds = canonicalBounds(parseBounds(url), requestedBounds);
   const grid = buildGrid(
     bounds,
-    hasRequestedBounds(url) ? VIEWPORT_MAX_SAMPLE_POINTS : DEFAULT_MAX_SAMPLE_POINTS,
+    requestedBounds ? VIEWPORT_MAX_SAMPLE_POINTS : DEFAULT_MAX_SAMPLE_POINTS,
   );
   const samplePoints = gridPoints(grid);
 
