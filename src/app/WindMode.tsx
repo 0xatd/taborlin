@@ -1059,7 +1059,14 @@ function WindCanvas({
     };
 
     const handleDoubleClick = (event: MouseEvent) => {
-      if (reducedMotion || isInteractiveTarget(event.target)) return;
+      if (
+        reducedMotion ||
+        (!event.ctrlKey && !event.metaKey) ||
+        isInteractiveTarget(event.target)
+      ) {
+        return;
+      }
+
       spawnEffect(event.clientX, event.clientY);
     };
 
@@ -1068,24 +1075,26 @@ function WindCanvas({
       if (
         reducedMotion ||
         event.touches.length > 0 ||
-        event.changedTouches.length !== 1 ||
+        event.changedTouches.length < 2 ||
         isInteractiveTarget(event.target)
       ) {
         return;
       }
 
-      const touch = event.changedTouches[0];
+      const touches = Array.from(event.changedTouches);
+      const x = touches.reduce((sum, touch) => sum + touch.clientX, 0) / touches.length;
+      const y = touches.reduce((sum, touch) => sum + touch.clientY, 0) / touches.length;
       const now = performance.now();
 
       if (
         lastTap &&
         now - lastTap.time < 340 &&
-        Math.hypot(touch.clientX - lastTap.x, touch.clientY - lastTap.y) < 40
+        Math.hypot(x - lastTap.x, y - lastTap.y) < 40
       ) {
-        spawnEffect(touch.clientX, touch.clientY);
+        spawnEffect(x, y);
         lastTap = null;
       } else {
-        lastTap = { time: now, x: touch.clientX, y: touch.clientY };
+        lastTap = { time: now, x, y };
       }
     };
 
@@ -1438,8 +1447,10 @@ export default function WindMode() {
                 <span className="sm:hidden">2 fingers: move / zoom</span>
               </div>
               <div className="flex items-center justify-center gap-1.5 text-sky-100/60 sm:justify-start">
-                <span className="hidden sm:inline">double-click: hurricane / lightning</span>
-                <span className="sm:hidden">double-tap: hurricane / lightning</span>
+                <span className="hidden sm:inline">
+                  Ctrl/Cmd double-click: hurricane / lightning
+                </span>
+                <span className="sm:hidden">2-finger double-tap: hurricane / lightning</span>
               </div>
             </div>
           ) : null}
