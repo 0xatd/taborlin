@@ -1128,25 +1128,6 @@ function WindCanvas({
       }
       const cameraMoved = cameraKey !== lastCameraKey && lastCameraKey !== '';
       lastCameraKey = cameraKey;
-      const mapIsBeingPanned =
-        document.documentElement.classList.contains('wind-map-dragging') ||
-        document.documentElement.classList.contains('wind-map-touching');
-
-      if (mapIsBeingPanned) {
-        if (useFallbackMap) {
-          drawBaseMap(context, width, height);
-        } else {
-          context.clearRect(0, 0, width, height);
-        }
-        particlesRef.current.forEach((particle) => {
-          particle.px = Number.NaN;
-          particle.py = Number.NaN;
-        });
-        context.globalAlpha = 1;
-        context.globalCompositeOperation = 'source-over';
-        raf = requestAnimationFrame(animate);
-        return;
-      }
 
       if (useFallbackMap) {
         if (frame % 240 === 1) {
@@ -1318,13 +1299,7 @@ function WindCanvas({
     };
   }, [field, reducedMotion, useFallbackMap, mapRef]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="wind-flow-canvas absolute inset-0 h-full w-full"
-      aria-hidden="true"
-    />
-  );
+  return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
 
 export default function WindMode() {
