@@ -20,6 +20,10 @@ type WindPoint = {
   directionDegrees: number;
 };
 
+type SanitizedWindPoint = WindPoint & {
+  observedAt?: string;
+};
+
 const OPEN_METEO_CHUNK_SIZE = 600;
 const OPEN_METEO_CHUNK_DELAY_MS = 500;
 
@@ -49,9 +53,10 @@ function fallbackField(): WindPoint[] {
 function sanitizePoint(
   point: OpenMeteoPoint | undefined,
   fallback: { lat: number; lon: number },
-): WindPoint {
+): SanitizedWindPoint {
   const speed = point?.current?.wind_speed_10m;
   const direction = point?.current?.wind_direction_10m;
+  const observedAt = point?.current?.time;
 
   return {
     lat: fallback.lat,
@@ -59,6 +64,7 @@ function sanitizePoint(
     speedMph: typeof speed === 'number' && Number.isFinite(speed) ? speed : 0,
     directionDegrees:
       typeof direction === 'number' && Number.isFinite(direction) ? direction : 270,
+    observedAt: typeof observedAt === 'string' ? observedAt : undefined,
   };
 }
 
@@ -108,7 +114,7 @@ async function fetchOpenMeteoPoints(points: { lat: number; lon: number }[]) {
 export async function GET() {
   try {
     const chunks = chunkPoints(SAMPLE_POINTS, OPEN_METEO_CHUNK_SIZE);
-    const pointGroups: WindPoint[][] = [];
+    const pointGroups: SanitizedWindPoint[][] = [];
 
     for (let index = 0; index < chunks.length; index += 1) {
       pointGroups.push(await fetchOpenMeteoPoints(chunks[index]));
@@ -118,13 +124,24 @@ export async function GET() {
       }
     }
 
-    const points = pointGroups.flat();
+    const pointsWithTimes = pointGroups.flat();
+    const observedTimes = pointsWithTimes
+      .map((point) => point.observedAt)
+      .filter((time): time is string => Boolean(time))
+      .sort();
+    const points: WindPoint[] = pointsWithTimes.map((point) => ({
+      lat: point.lat,
+      lon: point.lon,
+      speedMph: point.speedMph,
+      directionDegrees: point.directionDegrees,
+    }));
 
     return NextResponse.json(
       {
         source: 'Open-Meteo',
         attribution: 'Weather data by Open-Meteo.com (CC BY 4.0)',
         fetchedAt: new Date().toISOString(),
+        dataUpdatedAt: observedTimes.at(-1) ?? null,
         grid: WIND_GRID,
         points,
       },
@@ -142,6 +159,7 @@ export async function GET() {
         source: 'fallback',
         attribution: 'Wind field fallback while Open-Meteo is unavailable',
         fetchedAt: new Date().toISOString(),
+        dataUpdatedAt: null,
         grid: WIND_GRID,
         points: fallbackField(),
       },
