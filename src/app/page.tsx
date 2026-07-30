@@ -4,13 +4,13 @@ import LogoStrip from './LogoStrip';
 import WindMode from './WindMode';
 
 export const metadata: Metadata = {
-  title: 'Taborlin | Product Studio and Software Consulting',
+  title: 'Taborlin — Agent-Run Software Products',
   description:
-    'Taborlin builds and operates software products across AI credits, weather markets, AI video, sales tooling, social ops, maps, and crypto workflows.',
+    'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
   openGraph: {
-    title: 'Taborlin | Product Studio and Software Consulting',
+    title: 'Taborlin — Agent-Run Software Products',
     description:
-      'Taborlin builds and operates software products across AI credits, weather markets, AI video, sales tooling, social ops, maps, and crypto workflows.',
+      'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -20,28 +20,10 @@ export const metadata: Metadata = {
   },
 };
 
-const proofPoints = [
-  {
-    value: '11',
-    eyebrow: 'companies',
-    label: 'Principal/operator experience behind the studio',
-    detail:
-      'Career work across Esri, DTN, Enterprise Holdings, Grubhub, AIG, Everbridge, WeatherXM, and more.',
-  },
-  {
-    value: '7',
-    eyebrow: 'public products and tools',
-    label: 'Taborlin products and tools live now',
-    detail:
-      'CheapTokens, Sonde, Studio, Champion, Soshi, Spatix, and Open Crypto Tax Helper are public and inspectable.',
-  },
-  {
-    value: '2',
-    eyebrow: 'payment rails',
-    label: 'Card checkout plus Base USDC/x402 in production',
-    detail:
-      'CheapTokens handles purchases, API-key issuance, balances, and reconciliation in production.',
-  },
+const stats = [
+  { value: 'Products', label: 'AI software that transacts, publishes, tracks, and learns' },
+  { value: 'Tools', label: 'Open-source utilities for agents, maps, and crypto records' },
+  { value: 'Ops', label: 'Approvals, audit trails, metrics, and production guardrails' },
 ];
 
 const work = [
@@ -51,31 +33,15 @@ const work = [
     url: 'https://cheaptokens.ai',
     status: 'Live product',
     description:
-      'Discounted Venice-compatible API credits with card and x402 checkout, key issuance, balances, usage, and reconciliation built into the product.',
-  },
-  {
-    title: 'Sonde',
-    label: 'Weather market intelligence',
-    url: 'https://sonde.taborlin.co',
-    status: 'Live preview',
-    description:
-      'Weather prediction-market intelligence built on live Kalshi, Polymarket, and Open-Meteo data, with proprietary forecast and API surfaces staged behind the public preview.',
-  },
-  {
-    title: 'Studio',
-    label: 'AI video direction workspace',
-    url: 'https://studio.taborlin.co',
-    status: 'Live product',
-    description:
-      'A storyboard and AI video direction workspace where creators block scenes in 3D, generate takes with their own Venice key, and keep project assets organized.',
+      'Buy credits, get a Venice-compatible API key, test it in the playground, and pay less for real inference usage. Built with x402, card settlement, key issuance, account flows, and reconciliation.',
   },
   {
     title: 'Champion',
-    label: 'Portable revenue memory',
+    label: 'Personal sales agent',
     url: 'https://champion.taborlin.co',
     status: 'Live product',
     description:
-      'A portable revenue-memory workspace for account research, relationship history, meeting prep, stale-deal revival, and CRM handoff.',
+      'A portable revenue-memory workspace for AE and BD operators. Champion keeps account research, relationship context, follow-up, meeting prep, and stale-deal revival in one place.',
   },
   {
     title: 'Soshi',
@@ -83,7 +49,7 @@ const work = [
     url: 'https://soshi.taborlin.co',
     status: 'Live product',
     description:
-      'Approval-first social operations: plan posts, review drafts, schedule approved content, track replies, and keep distribution moving without unchecked agent publishing.',
+      'Plan content, review AI-generated drafts, schedule posts, track replies, and keep growth loops moving without letting agents publish unchecked.',
   },
   {
     title: 'Spatix',
@@ -91,7 +57,7 @@ const work = [
     url: 'https://spatix.io',
     status: 'Open-source tool',
     description:
-      'Map creation without GIS friction. Spatix turns files, geodata, and agent requests into shareable maps through a web app, API, and MCP surface.',
+      'Maps in seconds, no GIS skills needed. Spatix turns files, geodata, and agent requests into shareable maps through a web app, API, and MCP surface.',
   },
   {
     title: 'Open Crypto Tax Helper',
@@ -99,30 +65,30 @@ const work = [
     url: 'https://onchain-wallets-dashboard.vercel.app',
     status: 'Open-source tool',
     description:
-      'A self-hosted wallet and transaction organizer for cost-basis review, agent-proposed fixes, human approval, and audit trails.',
+      'Self-hosted wallet and transaction organizer for missing-cost-basis review. Agents can propose fixes; humans approve changes with audit history intact.',
   },
 ];
 
-const services = [
+const capabilities = [
   {
-    title: 'Product builds',
+    title: 'Revenue & Partnerships',
     description:
-      'MVPs and workflow products that need to become real software: auth, data models, APIs, admin surfaces, deployments, docs, and handoff.',
+      'Enterprise Holdings deal structuring, executive relationship development, and strategic partnerships across energy, technology, and infrastructure. Direct experience navigating procurement, compliance, and multi-stakeholder sales cycles.',
   },
   {
-    title: 'Automation and agent ops',
+    title: 'GTM & Strategy',
     description:
-      'Approval-gated loops for research, monitoring, QA, reconciliation, reporting, and follow-up when failure has business consequences.',
+      'Market positioning, pricing strategy, distribution, and channel development. Product-led growth for SaaS. Marketplace dynamics and partner-driven go-to-market.',
   },
   {
-    title: 'Data and API products',
+    title: 'Product & Execution',
     description:
-      'Weather, market, crypto, and operations data products with freshness, provenance, rate limits, monitoring, and customer-ready docs.',
+      'Zero-to-one product development, rapid prototyping, and roadmap prioritization. Multi-product operations with a bias toward shipping fast and iterating on signal.',
   },
   {
-    title: 'Technical rescue',
+    title: 'Software, Data & AI',
     description:
-      'Take a stalled build, find the risky paths, reduce scope, pass the production build, deploy, and leave the system easier to run.',
+      'Full-stack product builds, data infrastructure, and AI-native workflows. Technical enough to ship production software, commercially focused on what moves the needle.',
   },
 ];
 
@@ -137,12 +103,9 @@ function Navbar() {
           <a href="#work" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
             Products
           </a>
-          <a href="#services" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden sm:block">
-            Services
+          <a href="#capabilities" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden sm:block">
+            Capabilities
           </a>
-          <Link href="/updates" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden sm:block">
-            Updates
-          </Link>
           <a
             href="mailto:hello@taborlin.co"
             className="text-sm text-[#06060B] bg-[#fafafa] hover:bg-[#e4e4e7] transition-colors px-3.5 py-1.5 rounded-md font-medium"
@@ -162,31 +125,30 @@ function Hero() {
         <div className="animate-fade-in">
           <h1 className="text-[2rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-[#fafafa] tracking-tight leading-[1.18] sm:leading-[1.15]">
             <span className="block">
-              <span className="block sm:inline">We build and run</span>{' '}
-              <span className="block sm:inline">software products.</span>
+              <span className="block sm:inline">Agent-run</span>{' '}
+              <span className="block sm:inline">software products,</span>
             </span>
             <span className="block text-[#a1a1aa]">
-              <span className="block sm:inline">We help serious teams do the same.</span>
+              operated in the <span className="block sm:inline">real world.</span>
             </span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
-            Taborlin is a product studio and selected consulting practice. The firm
-            operates a public portfolio across AI credits, weather markets, AI video,
-            social operations, sales tooling, maps, and crypto records. The consulting
-            work is backed by a principal/operator track record across the companies below.
+            Taborlin builds focused AI products with payments, approvals, metrics,
+            and production ops baked in. We launch systems that transact, publish,
+            track, and learn.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
               href="#work"
               className="text-sm text-[#06060B] bg-[#fafafa] hover:bg-[#e4e4e7] transition-colors px-5 py-2.5 rounded-md font-medium"
             >
-              View products
+              See the products
             </a>
             <a
               href="mailto:hello@taborlin.co"
               className="text-sm text-[#fafafa] border border-[#2a2a35] hover:border-[#3a3a45] transition-colors px-5 py-2.5 rounded-md font-medium"
             >
-              Start a project
+              Get in touch
             </a>
           </div>
         </div>
@@ -195,24 +157,15 @@ function Hero() {
   );
 }
 
-function StudioModel() {
+function Stats() {
   return (
     <section className="pb-20 sm:pb-24">
       <div className="max-w-4xl mx-auto px-6">
-        <div className="mb-5 max-w-2xl">
-          <p className="text-xs text-[#a1a1aa]/40 uppercase tracking-widest mb-3">Track record</p>
-          <p className="text-sm text-[#a1a1aa] leading-relaxed">
-            Taborlin&apos;s own portfolio is separate from the principal career track
-            record behind the work. The public numbers below keep those lanes clear.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border border-[#1f1f28] rounded-xl p-6 sm:p-8 bg-[#0a0a10]">
-          {proofPoints.map((stat, i) => (
-            <div key={stat.label} className={`text-left ${i < proofPoints.length - 1 ? 'sm:border-r sm:border-[#1f1f28] sm:pr-6' : ''}`}>
-              <p className="text-[0.65rem] text-[#a1a1aa]/40 uppercase tracking-widest">{stat.eyebrow}</p>
-              <p className="mt-3 text-4xl sm:text-5xl font-semibold text-[#fafafa] tracking-tight">{stat.value}</p>
-              <p className="text-sm text-[#fafafa] mt-3 leading-snug">{stat.label}</p>
-              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-2 leading-relaxed">{stat.detail}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 border border-[#1f1f28] rounded-xl p-6 sm:p-8 bg-[#0a0a10]">
+          {stats.map((stat, i) => (
+            <div key={stat.label} className={`text-center ${i < stats.length - 1 ? 'sm:border-r sm:border-[#1f1f28]' : ''}`}>
+              <p className="text-2xl sm:text-3xl font-semibold text-[#fafafa] tracking-tight">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -226,10 +179,9 @@ function Work() {
     <section id="work" className="py-20 sm:py-24 border-t border-[#1f1f28]">
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products We Operate</h2>
+          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products & Tools</h2>
           <p className="text-sm text-[#a1a1aa]">
-            Taborlin&apos;s public portfolio: five live products/previews and two public tools.
-            This is separate from the principal career track record above.
+            The public portfolio, narrowed to the strongest live products and useful open-source tools.
           </p>
         </div>
         <div className="space-y-4">
@@ -268,19 +220,16 @@ function Work() {
   );
 }
 
-function Services() {
+function Capabilities() {
   return (
-    <section id="services" className="py-20 sm:py-24 border-t border-[#1f1f28]">
+    <section id="capabilities" className="py-20 sm:py-24 border-t border-[#1f1f28]">
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Work We Take On</h2>
-          <p className="text-sm text-[#a1a1aa]">
-            Consulting work has to be specific. The best fit is a real workflow, a product owner,
-            and a reason to ship now.
-          </p>
+          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Capabilities</h2>
+          <p className="text-sm text-[#a1a1aa]">Where product, partnerships, and execution overlap</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {services.map((cap) => (
+          {capabilities.map((cap) => (
             <div key={cap.title} className="bg-[#0a0a10] border border-[#1f1f28] rounded-xl p-6">
               <h3 className="text-sm font-semibold text-[#fafafa] mb-3">{cap.title}</h3>
               <p className="text-sm text-[#a1a1aa] leading-relaxed">{cap.description}</p>
@@ -296,10 +245,10 @@ function Contact() {
   return (
     <section id="contact" className="py-20 sm:py-24 border-t border-[#1f1f28]">
       <div className="max-w-4xl mx-auto px-6 text-center">
-        <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">Have something specific to build?</h2>
+        <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">Let&apos;s talk</h2>
         <p className="text-sm text-[#a1a1aa] mb-8 max-w-md mx-auto leading-relaxed">
-          Send the workflow, the customer, the current workaround, and what happens if it ships.
-          If there is a real business case, we will tell you how we would attack it.
+          Open to partnerships, GTM, and operator roles where product
+          and agent-operated software execution overlap.
         </p>
         <a
           href="mailto:hello@taborlin.co"
@@ -319,8 +268,7 @@ function Footer() {
         <p className="text-xs text-[#a1a1aa]/40">&copy; 2026 Taborlin</p>
         <div className="flex gap-6 text-xs text-[#a1a1aa]/40">
           <a href="#work" className="hover:text-[#a1a1aa] transition-colors">Work</a>
-          <a href="#services" className="hover:text-[#a1a1aa] transition-colors">Services</a>
-          <Link href="/updates" className="hover:text-[#a1a1aa] transition-colors">Updates</Link>
+          <a href="#capabilities" className="hover:text-[#a1a1aa] transition-colors">Capabilities</a>
           <a href="mailto:hello@taborlin.co" className="hover:text-[#a1a1aa] transition-colors">Email</a>
         </div>
       </div>
@@ -335,10 +283,10 @@ export default function HomePage() {
       <Navbar />
       <main className="relative z-10">
         <Hero />
-        <StudioModel />
+        <Stats />
         <LogoStrip />
         <Work />
-        <Services />
+        <Capabilities />
         <Contact />
       </main>
       <div className="relative z-10">

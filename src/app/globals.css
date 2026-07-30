@@ -203,11 +203,6 @@ html {
   user-select: none !important;
 }
 
-.wind-map-dragging .wind-flow-canvas,
-.wind-map-touching .wind-flow-canvas {
-  opacity: 0;
-}
-
 .wind-interaction-hint {
   animation: wind-hint-lifecycle 7.8s ease forwards;
 }
