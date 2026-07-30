@@ -20,6 +20,7 @@ type WindPayload = {
   source: string;
   attribution: string;
   fetchedAt: string;
+  dataUpdatedAt?: string | null;
   grid?: WindGrid;
   points: WindPoint[];
 };
@@ -125,6 +126,7 @@ const SAMPLE_FALLBACK: WindPoint[] = [
 ];
 
 const DEFAULT_MAPBOX_STYLE_URL = 'mapbox://styles/mapbox/dark-v11';
+const WIND_REFRESH_MS = 5 * 60 * 1000;
 const EMBEDDED_MAPBOX_CONFIG: MapboxConfig | null = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
   ? {
       token: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
@@ -673,6 +675,24 @@ function useReducedMotion() {
   }, []);
 
   return reduced;
+}
+
+function formatUtcTime(value?: string | null) {
+  if (!value) return null;
+
+  const normalized = value.includes('T') && !/[zZ]|[+-]\d{2}:?\d{2}$/.test(value)
+    ? `${value}Z`
+    : value;
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
+    timeZoneName: 'short',
+  }).format(date);
 }
 
 function WindToggleIcon() {
@@ -1329,31 +1349,40 @@ export default function WindMode() {
 
     window.localStorage.setItem('taborlin-wind-mode', String(enabled));
 
-    if (!enabled || payload) return;
+    if (!enabled) return;
 
     let cancelled = false;
-    fetch('/api/wind')
-      .then((response) => response.json() as Promise<WindPayload>)
-      .then((data) => {
-        if (!cancelled) {
-          setPayload(data);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setPayload({
-            source: 'fallback',
-            attribution: 'Wind field fallback while Open-Meteo is unavailable',
-            fetchedAt: new Date().toISOString(),
-            points: SAMPLE_FALLBACK,
-          });
-        }
-      });
+    let refreshTimer = 0;
+
+    const refreshWind = () => {
+      fetch('/api/wind')
+        .then((response) => response.json() as Promise<WindPayload>)
+        .then((data) => {
+          if (!cancelled) {
+            setPayload(data);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setPayload({
+              source: 'fallback',
+              attribution: 'Wind field fallback while Open-Meteo is unavailable',
+              fetchedAt: new Date().toISOString(),
+              dataUpdatedAt: null,
+              points: SAMPLE_FALLBACK,
+            });
+          }
+        });
+    };
+
+    refreshWind();
+    refreshTimer = window.setInterval(refreshWind, WIND_REFRESH_MS);
 
     return () => {
       cancelled = true;
+      window.clearInterval(refreshTimer);
     };
-  }, [enabled, loadedPreference, payload]);
+  }, [enabled, loadedPreference]);
 
   useEffect(() => {
     if (!enabled || activeMapboxConfig || mapboxRequestedRef.current) return;
@@ -1417,6 +1446,7 @@ export default function WindMode() {
   const points = payload?.points.length ? payload.points : SAMPLE_FALLBACK;
   const attribution =
     payload?.source === 'Open-Meteo' ? 'Wind data: Open-Meteo' : 'Wind mode preview';
+  const updatedLabel = formatUtcTime(payload?.dataUpdatedAt ?? payload?.fetchedAt);
   const windField = useMemo(() => buildWindField(points, payload?.grid), [points, payload?.grid]);
 
   return (
@@ -1466,6 +1496,7 @@ export default function WindMode() {
                 >
                   Open-Meteo
                 </a>
+                {updatedLabel ? <> · updated {updatedLabel}</> : null}
               </>
             ) : (
               attribution
