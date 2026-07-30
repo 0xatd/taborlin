@@ -5,7 +5,7 @@ import { updates } from '../data/updates';
 export const metadata: Metadata = {
   title: 'Updates',
   description:
-    'Updates from Taborlin — on building products, partnerships, and going to market.',
+    'Updates from Taborlin on building focused software businesses with agent workflows.',
   robots: {
     index: false,
     follow: false,
@@ -48,7 +48,7 @@ export default function UpdatesPage() {
           Updates
         </h1>
         <p className="text-sm text-[#a1a1aa] mb-16">
-          Notes on building, shipping, and going to market.
+          Notes on products, agent operations, and the systems behind them.
         </p>
 
         <div className="space-y-4">

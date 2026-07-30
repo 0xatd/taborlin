@@ -13,34 +13,34 @@ export const updates: Update[] = [
     title: 'Building Atlas',
     date: '2026-02-13',
     preview:
-      'We built an internal dashboard to manage all our projects in one place. Here\'s why and how.',
+      'The first version of our internal operating surface, and what it taught us.',
     description:
-      'How Taborlin built Atlas, an internal dashboard to manage Spatix, CheapTokens, and GISTools from a single view.',
-    content: `Managing multiple products across different platforms gets messy fast. GitHub for code, Vercel for deploys, Stripe for revenue, sticky notes for everything else. When you're running three active products — [Spatix](https://spatix.io), [CheapTokens](https://cheaptokens.ai), and [GISTools](https://gistools.io) — context-switching between dashboards becomes the real bottleneck.
+      'How Taborlin built an internal command center for projects, decisions, and agent work.',
+    content: `Managing multiple products across different platforms gets messy fast. GitHub for code, Vercel for deploys, Stripe for revenue, sticky notes for everything else. When you are running multiple products at once, context-switching between dashboards becomes the real bottleneck.
 
-Atlas is our internal dashboard that pulls it all together. One view across every project — development status, marketing tasks, user metrics, revenue, and roadmap. Built with Next.js, Prisma, and a handful of API integrations that pipe in data from GitHub, Vercel, Stripe, and our analytics stack.
+Atlas was our first internal dashboard for pulling that work together: project status, shipping tasks, operating notes, metrics, revenue, and what needed attention next. Built with Next.js, Prisma, and a handful of API integrations, it gave us a place to see product work instead of chasing it across tools.
 
 The hardest part wasn't the code — it was deciding what actually matters. Early versions showed everything, which meant they showed nothing. We iterated until each project's card answered three questions at a glance: is it healthy, is it growing, and what's the next thing to ship.
 
-It's not a product we're selling. It's a tool we built because we needed it. Every product studio eventually builds something like this, and now we have ours. If you're juggling multiple SaaS products as a small team, building your own command center is one of the highest-leverage things you can do.`,
+Atlas is now mostly a migration source, not the future product surface. The lesson survived: agent-operated companies need durable state for decisions, approvals, outputs, memory, and audit trails. That operating layer is now moving into Saga, where it can serve more than one internal dashboard.`,
   },
   {
     slug: 'cheaptokens-launch',
     title: 'Launching CheapTokens',
     date: '2026-02-07',
     preview:
-      'A marketplace for discounted AI credits through daily auctions.',
+      'Discounted Venice-compatible API credits for builders who care about inference cost.',
     description:
-      'Introducing CheapTokens — a marketplace for discounted Venice AI credits via daily auctions, built by Taborlin.',
+      'Introducing CheapTokens — discounted Venice-compatible API credits with checkout, key issuance, and account flows.',
     content: `AI API costs add up fast. If you're building on top of large language models, inference isn't free — and for teams running thousands of requests a day, every dollar per million tokens matters. That's the problem CheapTokens solves.
 
-[CheapTokens](https://cheaptokens.ai) is a marketplace for discounted Venice AI credits. Every day we run auctions where users bid on credit bundles at prices below retail. The model is simple: buy credits for less, use them the same way you always would. No catches, no degraded service — just lower prices driven by market dynamics.
+[CheapTokens](https://cheaptokens.ai) sells discounted Venice-compatible API credits. The model is simple: buy credits for less, get an API key, test it in the playground, and use the credits for real inference work.
 
-We built CheapTokens because we saw a gap between what AI providers charge at list price and what's possible with smarter distribution. Auctions create real price discovery, and buyers who are flexible on timing get rewarded with significant savings.
+The current product has two credit paths. Same-Day Credits are spot discounted credits for work you need today. Reserve credits give recurring users a stable key and prepaid balance for more predictable usage.
 
-The tech stack is deliberately lean — Next.js on the frontend, a real-time auction engine on the backend, and Stripe for payments. We designed the auction flow to be dead simple: see today's auction, place a bid, get your credits. No accounts required beyond email verification.
+The tech stack is deliberately lean: Next.js, payment verification, card and x402 checkout, key issuance, account flows, and reconciliation. The hard part is not making a checkout page. It is making sure money, keys, balances, and trust all line up.
 
-We're starting with Venice AI credits and plan to expand to other providers as the marketplace grows. If you're spending on AI inference and want to stretch your budget further, check out [CheapTokens](https://cheaptokens.ai).`,
+If you're spending on AI inference and want to stretch your budget further, check out [CheapTokens](https://cheaptokens.ai).`,
   },
   {
     slug: 'why-taborlin',
@@ -52,11 +52,11 @@ We're starting with Venice AI credits and plan to expand to other providers as t
       'The story behind Taborlin\'s name — from 119th Consulting to Atmos Labs to Taborlin, and why we chose to name ourselves after a fictional character.',
     content: `We've gone through a few names. 119th Consulting was the starting point — a consultancy that took on client work to fund product ideas. Atmos Labs was the pivot toward building our own things. Taborlin is what we are now.
 
-The name comes from Taborlin the Great, a fictional character from Patrick Rothfuss's Kingkiller Chronicle. Taborlin is known for being resourceful — escaping impossible situations, building solutions out of nothing, and making things work with whatever's at hand. That felt right for what we do: small team, limited resources, shipping real products like [Spatix](https://spatix.io), [CheapTokens](https://cheaptokens.ai), and [GISTools](https://gistools.io).
+The name comes from Taborlin the Great, a fictional character from Patrick Rothfuss's Kingkiller Chronicle. Taborlin is known for being resourceful — escaping impossible situations, building solutions out of nothing, and making things work with whatever's at hand. That felt right for what we do: small team, limited resources, shipping real products like [CheapTokens](https://cheaptokens.ai), [Sonde](https://sonde.taborlin.co), [Studio](https://studio.taborlin.co), and [Spatix](https://spatix.io).
 
 Naming a company is surprisingly hard. You need something short, memorable, available as a .co domain, and not already taken by a crypto project. We went through dozens of options before landing on Taborlin. It stuck because it carries the right energy — scrappy, builder-minded, a little unconventional.
 
-The rebrand reflects a shift in how we operate. Less consulting, more building. Every project we take on is something we own and grow ourselves. If you want to follow what we're shipping, our updates page is the best place to keep up.`,
+The rebrand reflects a shift in how we operate. Less consulting, more building. The work now centers on focused products where agents can handle the repetitive work and humans keep control of risk, trust, and direction.`,
   },
   {
     slug: 'spatix-launch',
@@ -72,7 +72,7 @@ The core insight: most people who need maps don't need full GIS capabilities. Ma
 
 We designed the interface around a single principle: if you can use a spreadsheet, you can make a map. Upload a CSV or paste in your data, pick a style, and you've got a shareable, embeddable map in under a minute. No projections to think about, no coordinate systems to configure, no plugins to install.
 
-If you work with location data and have ever been frustrated by traditional GIS tools, give [Spatix](https://spatix.io) a try. We also maintain [GISTools](https://gistools.io) for developers who need file conversion and analysis utilities — they pair well together.
+If you work with location data and have ever been frustrated by traditional GIS tools, give [Spatix](https://spatix.io) a try.
 
 We're starting with web-based map creation and expanding into data visualization, collaboration, and embeddable maps. The goal is to be the Canva of maps — simple enough for anyone, powerful enough to be useful.`,
   },
