@@ -106,3 +106,47 @@ Taborlin is three things — a product studio, labs (open-source tools and
 experiments), and a consulting firm. The stats band now states that tripod
 (Studio / Labs / Consulting) instead of numbers, and the Capabilities section
 is "Consulting & Capabilities" with no client names.
+
+## Round 2: the long tail — people actually shaped like us
+
+Three parallel sweeps (solo builders, hybrid studios, AI micro-labs). Exact lines
+verified via search-index titles/meta where sites blocked fetching.
+
+### Closest matches to Taborlin's shape
+
+- **AE Studio** — consulting funds their own products ("Skunkworks") and research.
+  "AE Studio is a development, data science and design agency that works closely
+  with founders and executives to build technology products that increase human
+  agency." Consulting profits → internal products → mission. Sold ElectricSMS.
+- **Sublayer Labs** — "an AI native software studio and lab with a mix of products,
+  open source, community, writing, and more that explore what happens when the
+  cost of making things approaches zero."
+- **Big Human** — one-sentence hybrid resolution: "Whether we're creating our own
+  digital products or offering a complete digital product design package for
+  clients, we have the same objectives."
+- **Bakken & Bæck** — flattest hero in the set: "Bakken & Bæck is a design and
+  technology studio. We build digital products, from zero to launch."
+- **Postlight / basement.studio** — client work on the main site + a named
+  `/labs` section for own products ("When the teams at Postlight aren't building
+  software for clients, they're building software for themselves").
+- **Every** — states the flywheel outright: writing, products, and consulting are
+  "a positive feedback loop."
+- **Solo builders (levels.io, Marc Lou, Tony Dinh, Marc Köhlbrugge)** — no
+  taglines at all: a plain sentence naming the products ("Pieter Levels builds
+  internet startups by himself including Nomads.com, Remote OK, Hoodmaps, Photo AI
+  and Interior AI"), often with public revenue as the proof layer.
+
+### Structural patterns for the studio/labs/consulting problem
+
+1. Named "/labs" section on one domain (Postlight, basement.studio)
+2. Umbrella collective, separate brands (garden3d, ustwo)
+3. One umbrella sentence covering both (Bakken & Bæck, Big Human)
+4. Own products as backstory/credibility only (MetaLab, Fictive Kin, thoughtbot)
+
+### Big takeaway for the hero
+
+The people shaped like us don't use taglines. Heroes are flat, first-person,
+present-tense identity sentences (3–12 words: "We make interfaces", "We build
+digital products, from zero to launch") — and the product NAMES do the
+credibility work, not adjectives. The tripod never appears in the hero; it lives
+in the subhead or section structure.
