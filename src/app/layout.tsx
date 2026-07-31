@@ -5,24 +5,24 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL('https://taborlin.co'),
   title: {
-    default: 'Taborlin — Agent-Run Software Products',
+    default: 'Taborlin — AI Products That Do Real Work',
     template: '%s — Taborlin',
   },
   description:
-    'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
+    'Taborlin is a small product studio building AI software that does real work — agents handle payments, publishing, and records; humans approve what matters.',
   openGraph: {
-    title: 'Taborlin — Agent-Run Software Products',
+    title: 'Taborlin — AI Products That Do Real Work',
     description:
-      'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
+      'Taborlin is a small product studio building AI software that does real work — agents handle payments, publishing, and records; humans approve what matters.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Taborlin — Agent-Run Software Products',
+    title: 'Taborlin — AI Products That Do Real Work',
     description:
-      'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
+      'Taborlin is a small product studio building AI software that does real work — agents handle payments, publishing, and records; humans approve what matters.',
   },
   alternates: {
     canonical: 'https://taborlin.co',
@@ -46,7 +46,7 @@ export default function RootLayout({
               name: 'Taborlin',
               url: 'https://taborlin.co',
               description:
-                'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
+                'Taborlin is a small product studio building AI software that does real work — agents handle payments, publishing, and records; humans approve what matters.',
               sameAs: [
                 'https://cheaptokens.ai',
                 'https://champion.taborlin.co',

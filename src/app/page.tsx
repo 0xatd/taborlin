@@ -4,13 +4,13 @@ import LogoStrip from './LogoStrip';
 import WindMode from './WindMode';
 
 export const metadata: Metadata = {
-  title: 'Taborlin — Agent-Run Software Products',
+  title: 'Taborlin — AI Products That Do Real Work',
   description:
-    'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
+    'Taborlin is a small product studio building AI software that does real work — agents handle payments, publishing, and records; humans approve what matters.',
   openGraph: {
-    title: 'Taborlin — Agent-Run Software Products',
+    title: 'Taborlin — AI Products That Do Real Work',
     description:
-      'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
+      'Taborlin is a small product studio building AI software that does real work — agents handle payments, publishing, and records; humans approve what matters.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
 };
 
 const stats = [
-  { value: 'Products', label: 'AI software that transacts, publishes, tracks, and learns' },
-  { value: 'Tools', label: 'Open-source utilities for agents, maps, and crypto records' },
-  { value: 'Ops', label: 'Approvals, audit trails, metrics, and production guardrails' },
+  { value: '3', label: 'Live products taking payments and shipping real work' },
+  { value: '2', label: 'Open-source tools for maps and crypto records' },
+  { value: '1', label: 'Small team running it all, with approvals and audit trails' },
 ];
 
 const work = [
@@ -33,7 +33,7 @@ const work = [
     url: 'https://cheaptokens.ai',
     status: 'Live product',
     description:
-      'Buy credits, get a Venice-compatible API key, test it in the playground, and pay less for real inference usage. Built with x402, card settlement, key issuance, account flows, and reconciliation.',
+      'Pay less for AI inference. Buy credits, get a Venice-compatible API key, test it in the playground, and start making calls in minutes — card or crypto, reconciled automatically.',
   },
   {
     title: 'Champion',
@@ -41,7 +41,7 @@ const work = [
     url: 'https://champion.taborlin.co',
     status: 'Live product',
     description:
-      'A portable revenue-memory workspace for AE and BD operators. Champion keeps account research, relationship context, follow-up, meeting prep, and stale-deal revival in one place.',
+      'A sales agent that remembers everything. Account research, relationship context, follow-up, meeting prep, and stale-deal revival in one portable workspace for AE and BD operators.',
   },
   {
     title: 'Soshi',
@@ -49,7 +49,7 @@ const work = [
     url: 'https://soshi.taborlin.co',
     status: 'Live product',
     description:
-      'Plan content, review AI-generated drafts, schedule posts, track replies, and keep growth loops moving without letting agents publish unchecked.',
+      'Grow on social without letting agents post unchecked. Plan content, review AI drafts, schedule posts, and track replies — every post ships with your sign-off.',
   },
   {
     title: 'Spatix',
@@ -65,7 +65,7 @@ const work = [
     url: 'https://onchain-wallets-dashboard.vercel.app',
     status: 'Open-source tool',
     description:
-      'Self-hosted wallet and transaction organizer for missing-cost-basis review. Agents can propose fixes; humans approve changes with audit history intact.',
+      'Get your on-chain records straight. A self-hosted organizer for wallets and missing cost basis — agents propose fixes, you approve them, the audit history stays intact.',
   },
 ];
 
@@ -73,7 +73,7 @@ const capabilities = [
   {
     title: 'Revenue & Partnerships',
     description:
-      'Enterprise Holdings deal structuring, executive relationship development, and strategic partnerships across energy, technology, and infrastructure. Direct experience navigating procurement, compliance, and multi-stakeholder sales cycles.',
+      'Enterprise deal structuring, executive relationship development, and strategic partnerships across energy, technology, and infrastructure. Direct experience navigating procurement, compliance, and multi-stakeholder sales cycles.',
   },
   {
     title: 'GTM & Strategy',
@@ -125,17 +125,17 @@ function Hero() {
         <div className="animate-fade-in">
           <h1 className="text-[2rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-[#fafafa] tracking-tight leading-[1.18] sm:leading-[1.15]">
             <span className="block">
-              <span className="block sm:inline">Agent-run</span>{' '}
-              <span className="block sm:inline">software products,</span>
+              <span className="block sm:inline">AI products</span>{' '}
+              <span className="block sm:inline">that do real work.</span>
             </span>
             <span className="block text-[#a1a1aa]">
-              operated in the <span className="block sm:inline">real world.</span>
+              Agents run them. <span className="block sm:inline">Humans sign off.</span>
             </span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
-            Taborlin builds focused AI products with payments, approvals, metrics,
-            and production ops baked in. We launch systems that transact, publish,
-            track, and learn.
+            Taborlin is a small product studio. Our software takes payments,
+            publishes content, and keeps records in production — agents handle the
+            day-to-day, and a human approves what matters.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
@@ -181,7 +181,7 @@ function Work() {
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products & Tools</h2>
           <p className="text-sm text-[#a1a1aa]">
-            The public portfolio, narrowed to the strongest live products and useful open-source tools.
+            Live products with real customers, plus open-source tools anyone can run.
           </p>
         </div>
         <div className="space-y-4">
