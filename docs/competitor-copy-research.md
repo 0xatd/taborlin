@@ -101,6 +101,8 @@ Taborlin also consults — current clients are WeatherXM (decentralized weather
 station network, DePIN) and Sorcerer (YC S24, long-duration weather balloons for
 atmospheric data). This explains the weather/geo DNA on the site (wind API,
 WindMode, micromarkets, Spatix) and the energy/infrastructure language in
-Capabilities. Copy treats consulting as a first-class second line of business:
-the Capabilities section is now "Consulting & Capabilities" and names the
-clients (pending confirmation that clients are OK being named publicly).
+Capabilities. Per Alex, client names stay off the site. Final identity frame:
+Taborlin is three things — a product studio, labs (open-source tools and
+experiments), and a consulting firm. The stats band now states that tripod
+(Studio / Labs / Consulting) instead of numbers, and the Capabilities section
+is "Consulting & Capabilities" with no client names.

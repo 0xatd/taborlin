@@ -4,13 +4,13 @@ import LogoStrip from './LogoStrip';
 import WindMode from './WindMode';
 
 export const metadata: Metadata = {
-  title: 'Taborlin — AI Products That Do Real Work',
+  title: 'Taborlin — AI Product Studio, Labs & Consulting',
   description:
-    'Taborlin is a small product studio building AI software that does real work — agents handle payments, publishing, and records; humans approve what matters.',
+    'Taborlin is a product studio, labs, and consulting firm. We build and operate AI software that does real work — agents run it, humans sign off — and consult on GTM and product for data infrastructure companies.',
   openGraph: {
-    title: 'Taborlin — AI Products That Do Real Work',
+    title: 'Taborlin — AI Product Studio, Labs & Consulting',
     description:
-      'Taborlin is a small product studio building AI software that does real work — agents handle payments, publishing, and records; humans approve what matters.',
+      'Taborlin is a product studio, labs, and consulting firm. We build and operate AI software that does real work — agents run it, humans sign off — and consult on GTM and product for data infrastructure companies.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
 };
 
 const stats = [
-  { value: '3', label: 'Live products taking payments and shipping real work' },
-  { value: '2', label: 'Open-source tools for maps and crypto records' },
-  { value: '1', label: 'Small team running it all, with approvals and audit trails' },
+  { value: 'Studio', label: 'Focused AI products we build, operate, and monetize' },
+  { value: 'Labs', label: 'Open-source tools and experiments in maps, agents, and crypto records' },
+  { value: 'Consulting', label: 'GTM, partnerships, and product for data infrastructure companies' },
 ];
 
 const work = [
@@ -133,9 +133,10 @@ function Hero() {
             </span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
-            Taborlin is a small product studio. Our software takes payments,
-            publishes content, and keeps records in production — agents handle the
-            day-to-day, and a human approves what matters.
+            Taborlin is a product studio, labs, and consulting firm. We build and
+            operate AI software that takes payments, publishes, and keeps records
+            in production — agents handle the day-to-day, and a human approves
+            what matters.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
@@ -227,9 +228,8 @@ function Capabilities() {
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Consulting & Capabilities</h2>
           <p className="text-sm text-[#a1a1aa] max-w-2xl">
-            Alongside our own products, Taborlin consults on go-to-market, partnerships,
-            and product for data infrastructure companies. Current clients include
-            WeatherXM and Sorcerer.
+            Alongside our own products, Taborlin consults on go-to-market,
+            partnerships, and product for data infrastructure companies.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
