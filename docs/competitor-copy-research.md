@@ -94,3 +94,13 @@ the market right now.
 - https://sierra.ai
 - https://www.lindy.ai/ai-agent
 - https://cognition.com/blog/introducing-devin
+
+## Addendum: consulting practice
+
+Taborlin also consults — current clients are WeatherXM (decentralized weather
+station network, DePIN) and Sorcerer (YC S24, long-duration weather balloons for
+atmospheric data). This explains the weather/geo DNA on the site (wind API,
+WindMode, micromarkets, Spatix) and the energy/infrastructure language in
+Capabilities. Copy treats consulting as a first-class second line of business:
+the Capabilities section is now "Consulting & Capabilities" and names the
+clients (pending confirmation that clients are OK being named publicly).

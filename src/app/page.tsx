@@ -104,7 +104,7 @@ function Navbar() {
             Products
           </a>
           <a href="#capabilities" className="text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors hidden sm:block">
-            Capabilities
+            Consulting
           </a>
           <a
             href="mailto:hello@taborlin.co"
@@ -225,8 +225,12 @@ function Capabilities() {
     <section id="capabilities" className="py-20 sm:py-24 border-t border-[#1f1f28]">
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-12">
-          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Capabilities</h2>
-          <p className="text-sm text-[#a1a1aa]">Where product, partnerships, and execution overlap</p>
+          <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Consulting & Capabilities</h2>
+          <p className="text-sm text-[#a1a1aa] max-w-2xl">
+            Alongside our own products, Taborlin consults on go-to-market, partnerships,
+            and product for data infrastructure companies. Current clients include
+            WeatherXM and Sorcerer.
+          </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {capabilities.map((cap) => (
@@ -247,8 +251,8 @@ function Contact() {
       <div className="max-w-4xl mx-auto px-6 text-center">
         <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">Let&apos;s talk</h2>
         <p className="text-sm text-[#a1a1aa] mb-8 max-w-md mx-auto leading-relaxed">
-          Open to partnerships, GTM, and operator roles where product
-          and agent-operated software execution overlap.
+          Open to consulting engagements, partnerships, and operator roles
+          where product, GTM, and agent-operated software overlap.
         </p>
         <a
           href="mailto:hello@taborlin.co"
@@ -268,7 +272,7 @@ function Footer() {
         <p className="text-xs text-[#a1a1aa]/40">&copy; 2026 Taborlin</p>
         <div className="flex gap-6 text-xs text-[#a1a1aa]/40">
           <a href="#work" className="hover:text-[#a1a1aa] transition-colors">Work</a>
-          <a href="#capabilities" className="hover:text-[#a1a1aa] transition-colors">Capabilities</a>
+          <a href="#capabilities" className="hover:text-[#a1a1aa] transition-colors">Consulting</a>
           <a href="mailto:hello@taborlin.co" className="hover:text-[#a1a1aa] transition-colors">Email</a>
         </div>
       </div>
