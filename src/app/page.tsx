@@ -21,21 +21,69 @@ export const metadata: Metadata = {
   },
 };
 
-const stats = [
+const agentProfiles = [
   {
-    value: 'AI Agents',
-    metric: '3 approval-first loops',
-    label: 'Sales, social, and operator workflows.',
+    name: 'Ted',
+    role: 'operator',
+    image: '/agent-portraits/ted.svg',
+    imageAlt: 'Cartoon portrait of Ted, an AI operator',
   },
   {
-    value: 'Software',
-    metric: '4 public product surfaces',
-    label: 'Live apps and tools, not concepts.',
+    name: 'Lyra',
+    role: 'agent',
+    image: '/agent-portraits/lyra.svg',
+    imageAlt: 'Cartoon portrait of Lyra, an autonomous agent',
+  },
+];
+
+const softwareActivity = [
+  {
+    label: 'PR reviewed',
+    detail: 'copy, UI, and production checks',
+    tone: 'bg-emerald-400',
   },
   {
-    value: 'Data',
-    metric: '4 decision domains',
-    label: 'Markets, weather, onchain, and ops data.',
+    label: 'Preview deployed',
+    detail: 'real product surface, not a mock',
+    tone: 'bg-sky-400',
+  },
+  {
+    label: 'Build fixed',
+    detail: 'audit, lint, and release gates',
+    tone: 'bg-violet-400',
+  },
+  {
+    label: 'Docs shipped',
+    detail: 'handoffs for humans and agents',
+    tone: 'bg-amber-300',
+  },
+];
+
+const activityCells = [
+  1, 0, 2, 1, 3, 0, 1, 2, 1, 3, 2, 0, 1, 2, 3, 1, 0, 2, 1, 3, 2, 1, 0, 2,
+  3, 2, 1, 0, 1, 3, 2, 1, 0, 1, 2,
+];
+
+const dataGroups = [
+  {
+    title: 'Markets',
+    items: ['Kalshi', 'Polymarket', 'odds', 'market prices'],
+  },
+  {
+    title: 'Weather',
+    items: ['NOAA', 'NWS', 'HRRR', 'GFS', 'station obs', 'radar'],
+  },
+  {
+    title: 'Onchain',
+    items: ['Base', 'x402', 'USDC', 'wallets', 'transactions'],
+  },
+  {
+    title: 'Ops',
+    items: ['GitHub', 'Vercel', 'Gmail', 'Postgres', 'social queues'],
+  },
+  {
+    title: 'AI',
+    items: ['Venice', 'OpenAI', 'Anthropic', 'embeddings', 'ASR/TTS'],
   },
 ];
 
@@ -169,21 +217,109 @@ function Hero() {
   );
 }
 
-function Stats() {
+function ProofPanels() {
   return (
     <section className="pb-20 sm:pb-24">
       <div className="max-w-5xl mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 border border-[#1f1f28] rounded-lg p-5 sm:p-6 bg-[#0a0a10]">
-          {stats.map((stat, i) => (
-            <div
-              key={stat.label}
-              className={`min-w-0 text-left ${i < stats.length - 1 ? 'sm:border-r sm:border-[#1f1f28] sm:pr-5' : ''}`}
-            >
-              <p className="text-xl sm:text-2xl font-semibold text-[#fafafa]">{stat.value}</p>
-              <p className="text-xs font-medium text-[#fafafa]/70 mt-2">{stat.metric}</p>
-              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-2 leading-relaxed break-words">{stat.label}</p>
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-3">
+          <article className="min-w-0 rounded-lg border border-[#1f1f28] bg-[#0a0a10] p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a1a1aa]/55">AI Agents</p>
+            <h2 className="mt-3 text-xl font-semibold leading-tight text-[#fafafa]">
+              Complex investigative work.
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-[#a1a1aa]">
+              Autonomous operators for research, builds, reviews, ops, and approvals.
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              {agentProfiles.map((agent) => (
+                <div key={agent.name} className="rounded-md border border-[#1f1f28] bg-[#06060B] p-3">
+                  <div className="proof-visual relative aspect-square overflow-hidden rounded-md border border-white/5 bg-[#0f0f16]">
+                    <Image
+                      src={agent.image}
+                      alt={agent.imageAlt}
+                      fill
+                      sizes="150px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-[#fafafa]">{agent.name}</p>
+                  <p className="text-xs text-[#a1a1aa]/60">{agent.role}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </article>
+
+          <article className="min-w-0 rounded-lg border border-[#1f1f28] bg-[#0a0a10] p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a1a1aa]/55">Software</p>
+            <h2 className="mt-3 text-xl font-semibold leading-tight text-[#fafafa]">
+              Real activity, real repos.
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-[#a1a1aa]">
+              Production software shipped through PRs, previews, builds, and deploys.
+            </p>
+            <div className="proof-visual mt-5 rounded-md border border-[#1f1f28] bg-[#06060B] p-4">
+              <div className="flex items-center justify-between gap-3 border-b border-[#1f1f28] pb-3">
+                <div>
+                  <p className="text-sm font-semibold text-[#fafafa]">build activity</p>
+                  <p className="text-xs text-[#a1a1aa]/55">sanitized GitHub-style feed</p>
+                </div>
+                <div className="grid grid-cols-5 gap-1" aria-hidden="true">
+                  {activityCells.map((level, index) => (
+                    <span
+                      key={`${level}-${index}`}
+                      className={`h-2.5 w-2.5 rounded-sm ${
+                        level === 0
+                          ? 'bg-[#1f1f28]'
+                          : level === 1
+                            ? 'bg-emerald-950'
+                            : level === 2
+                              ? 'bg-emerald-700'
+                              : 'bg-emerald-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="mt-3 space-y-3">
+                {softwareActivity.map((item) => (
+                  <div key={item.label} className="flex gap-3">
+                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${item.tone}`} />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-[#fafafa]">{item.label}</p>
+                      <p className="text-xs leading-relaxed text-[#a1a1aa]/60">{item.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <article className="min-w-0 rounded-lg border border-[#1f1f28] bg-[#0a0a10] p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a1a1aa]/55">Data</p>
+            <h2 className="mt-3 text-xl font-semibold leading-tight text-[#fafafa]">
+              Signals shaped into decisions.
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-[#a1a1aa]">
+              Practical experience across market, weather, onchain, ops, and AI APIs.
+            </p>
+            <div className="proof-visual mt-5 space-y-3 rounded-md border border-[#1f1f28] bg-[#06060B] p-4">
+              {dataGroups.map((group) => (
+                <div key={group.title} className="min-w-0">
+                  <p className="text-xs font-semibold text-[#fafafa]">{group.title}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {group.items.map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-md border border-[#1f1f28] bg-[#111118] px-2 py-1 text-[11px] leading-none text-[#a1a1aa]/70"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -333,7 +469,7 @@ export default function HomePage() {
       <Navbar />
       <main className="relative z-10">
         <Hero />
-        <Stats />
+        <ProofPanels />
         <LogoStrip />
         <Work />
         <Capabilities />

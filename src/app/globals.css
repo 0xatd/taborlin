@@ -166,7 +166,16 @@ html {
   filter: grayscale(100%) saturate(0%) contrast(1.08) brightness(0.78);
 }
 
+.proof-visual {
+  filter: grayscale(100%) saturate(0%) contrast(1.08) brightness(0.82);
+  transition: filter 0.35s ease, transform 0.35s ease;
+}
+
 .wind-mode-enabled .product-shot {
+  filter: none;
+}
+
+.wind-mode-enabled .proof-visual {
   filter: none;
 }
 
