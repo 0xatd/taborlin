@@ -162,6 +162,14 @@ html {
   opacity: 1;
 }
 
+.product-shot {
+  filter: grayscale(100%) saturate(0%) contrast(1.08) brightness(0.78);
+}
+
+.wind-mode-enabled .product-shot {
+  filter: none;
+}
+
 .wind-mapbox {
   pointer-events: none;
 }

@@ -1479,6 +1479,14 @@ export default function WindMode() {
   }, [enabled, loadedPreference, windRequestUrl]);
 
   useEffect(() => {
+    document.documentElement.classList.toggle('wind-mode-enabled', enabled);
+
+    return () => {
+      document.documentElement.classList.remove('wind-mode-enabled');
+    };
+  }, [enabled]);
+
+  useEffect(() => {
     if (!enabled || activeMapboxConfig || mapboxRequestedRef.current) return;
 
     mapboxRequestedRef.current = true;

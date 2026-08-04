@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import LogoStrip from './LogoStrip';
 import WindMode from './WindMode';
 
 export const metadata: Metadata = {
-  title: 'Taborlin — Agent-Run Software Products',
+  title: 'Taborlin — Building Agents and Applied AI Products',
   description:
-    'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
+    'Taborlin builds agents and applied AI products for inference, sales, social operations, maps, and data workflows.',
   openGraph: {
-    title: 'Taborlin — Agent-Run Software Products',
+    title: 'Taborlin — Building Agents and Applied AI Products',
     description:
-      'Taborlin builds and operates focused AI software products with payments, approvals, metrics, and production ops baked in.',
+      'Taborlin builds agents and applied AI products for inference, sales, social operations, maps, and data workflows.',
     url: 'https://taborlin.co',
     siteName: 'Taborlin',
     type: 'website',
@@ -21,9 +22,21 @@ export const metadata: Metadata = {
 };
 
 const stats = [
-  { value: 'Products', label: 'AI software that transacts, publishes, tracks, and learns' },
-  { value: 'Tools', label: 'Open-source utilities for agents, maps, and crypto records' },
-  { value: 'Ops', label: 'Approvals, audit trails, metrics, and production guardrails' },
+  {
+    value: 'AI Agents',
+    metric: 'Complex investigative work',
+    label: 'Research, builds, reviews, ops, and approvals.',
+  },
+  {
+    value: 'Software & Tools',
+    metric: 'Repeatable work as software',
+    label: 'Products, APIs, dashboards, and operating workflows.',
+  },
+  {
+    value: 'Data & Content',
+    metric: 'Signals shaped into output',
+    label: 'Markets, weather, onchain, ops, research, and content systems.',
+  },
 ];
 
 const work = [
@@ -32,40 +45,44 @@ const work = [
     label: 'Discounted Venice API credits',
     url: 'https://cheaptokens.ai',
     status: 'Live product',
+    metric: 'x402 checkout for AI inference',
+    image: '/product-screenshots/cheaptokens.png',
+    imageAlt: 'CheapTokens homepage showing discounted Venice API credit pricing',
     description:
-      'Buy credits, get a Venice-compatible API key, test it in the playground, and pay less for real inference usage. Built with x402, card settlement, key issuance, account flows, and reconciliation.',
+      'Buy discounted Venice API credits with USDC, get a Venice-compatible API key, and run model calls through a simple developer flow without a subscription.',
   },
   {
     title: 'Champion',
-    label: 'Personal sales agent',
+    label: 'The personal AI rolodex for successful AEs.',
     url: 'https://champion.taborlin.co',
     status: 'Live product',
+    metric: 'Private alpha for revenue operators',
+    image: '/product-screenshots/champion.png',
+    imageAlt: 'Champion homepage for a personal AI rolodex for successful account executives',
     description:
-      'A portable revenue-memory workspace for AE and BD operators. Champion keeps account research, relationship context, follow-up, meeting prep, and stale-deal revival in one place.',
+      'Champion gives AE and BD professionals a portable revenue memory layer plus a personal sales agent that keeps the best-practice selling loop moving.',
   },
   {
     title: 'Soshi',
-    label: 'Approval-first social growth',
+    label: 'Run every social account from one approval queue.',
     url: 'https://soshi.taborlin.co',
     status: 'Live product',
+    metric: 'Draft, approve, schedule, measure, repeat',
+    image: '/product-screenshots/soshi.png',
+    imageAlt: 'Soshi homepage showing an approval-first social operations queue',
     description:
-      'Plan content, review AI-generated drafts, schedule posts, track replies, and keep growth loops moving without letting agents publish unchecked.',
-  },
-  {
-    title: 'Spatix',
-    label: 'AI-native maps',
-    url: 'https://spatix.io',
-    status: 'Open-source tool',
-    description:
-      'Maps in seconds, no GIS skills needed. Spatix turns files, geodata, and agent requests into shareable maps through a web app, API, and MCP surface.',
+      'Plan, draft, review, schedule, and measure X-first growth work with AI assistance while every public post stays behind human approval.',
   },
   {
     title: 'Open Crypto Tax Helper',
-    label: 'Agent-friendly crypto records',
+    label: 'Self-hosted crypto records for agent review',
     url: 'https://onchain-wallets-dashboard.vercel.app',
     status: 'Open-source tool',
+    metric: 'Wallet records, proposed fixes, and audit logs',
+    image: '/product-screenshots/open-crypto-tax-helper.png',
+    imageAlt: 'Open Crypto Tax Helper preview showing missing cost basis review and agent proposals',
     description:
-      'Self-hosted wallet and transaction organizer for missing-cost-basis review. Agents can propose fixes; humans approve changes with audit history intact.',
+      'Organize wallet and exchange records, surface missing cost basis, let agents propose fixes, and keep the audit trail under your control.',
   },
 ];
 
@@ -95,8 +112,8 @@ const capabilities = [
 function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#06060B]/80 backdrop-blur-md border-b border-[#1f1f28]/50">
-      <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="text-[#fafafa] text-sm font-semibold tracking-tight">
+      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+        <Link href="/" className="text-[#fafafa] text-sm font-semibold">
           Taborlin
         </Link>
         <div className="flex items-center gap-6 sm:gap-8">
@@ -121,21 +138,16 @@ function Navbar() {
 function Hero() {
   return (
     <section className="pt-32 sm:pt-40 pb-16 sm:pb-20">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="animate-fade-in">
-          <h1 className="text-[2rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-[#fafafa] tracking-tight leading-[1.18] sm:leading-[1.15]">
-            <span className="block">
-              <span className="block sm:inline">Agent-run</span>{' '}
-              <span className="block sm:inline">software products,</span>
-            </span>
-            <span className="block text-[#a1a1aa]">
-              operated in the <span className="block sm:inline">real world.</span>
-            </span>
+      <div className="max-w-5xl mx-auto px-6">
+        <div>
+          <h1 className="text-[2rem] sm:text-5xl lg:text-[4rem] font-semibold text-[#fafafa] leading-[1.12] sm:leading-[1.08] max-w-4xl break-words">
+            <span className="block">Building agents</span>
+            <span className="block text-[#a1a1aa]">and applied AI products.</span>
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-2xl leading-relaxed">
-            Taborlin builds focused AI products with payments, approvals, metrics,
-            and production ops baked in. We launch systems that transact, publish,
-            track, and learn.
+          <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-3xl leading-relaxed">
+            Making autonomous systems useful in the real world — agent-native
+            operations, paid APIs, prediction-market tooling, and onchain
+            inference payments.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
@@ -160,12 +172,16 @@ function Hero() {
 function Stats() {
   return (
     <section className="pb-20 sm:pb-24">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 border border-[#1f1f28] rounded-xl p-6 sm:p-8 bg-[#0a0a10]">
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 border border-[#1f1f28] rounded-lg p-5 sm:p-6 bg-[#0a0a10]">
           {stats.map((stat, i) => (
-            <div key={stat.label} className={`text-center ${i < stats.length - 1 ? 'sm:border-r sm:border-[#1f1f28]' : ''}`}>
-              <p className="text-2xl sm:text-3xl font-semibold text-[#fafafa] tracking-tight">{stat.value}</p>
-              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-1">{stat.label}</p>
+            <div
+              key={stat.label}
+              className={`min-w-0 text-left ${i < stats.length - 1 ? 'sm:border-r sm:border-[#1f1f28] sm:pr-5' : ''}`}
+            >
+              <p className="text-xl sm:text-2xl font-semibold text-[#fafafa]">{stat.value}</p>
+              <p className="text-xs font-medium text-[#fafafa]/70 mt-2">{stat.metric}</p>
+              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-2 leading-relaxed break-words">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -177,43 +193,77 @@ function Stats() {
 function Work() {
   return (
     <section id="work" className="py-20 sm:py-24 border-t border-[#1f1f28]">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-5xl mx-auto px-6">
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products & Tools</h2>
-          <p className="text-sm text-[#a1a1aa]">
-            The public portfolio, narrowed to the strongest live products and useful open-source tools.
+          <p className="text-sm text-[#a1a1aa] max-w-2xl">
+            The strongest public surfaces: products that are live, tools that are useful,
+            and proof that agents can operate inside real software loops.
           </p>
         </div>
-        <div className="space-y-4">
-          {work.map((item) => (
-            <div
-              key={item.title}
-              className="group bg-[#0a0a10] border border-[#1f1f28] rounded-xl p-6 sm:p-8 hover:border-[#2a2a35] transition-all"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-3">
-                {item.url ? (
+        <div className="space-y-5">
+          {work.map((item, index) => {
+            const imageOnRight = index % 2 === 1;
+
+            return (
+              <article
+                key={item.title}
+                className="product-card group overflow-hidden bg-[#0a0a10] border border-[#1f1f28] rounded-lg hover:border-[#2a2a35] transition-all"
+              >
+                <div className={imageOnRight ? 'grid lg:grid-cols-[0.92fr_1.08fr]' : 'grid lg:grid-cols-[1.08fr_0.92fr]'}>
                   <a
                     href={item.url}
                     target="_blank"
                     rel="noopener"
-                    className="text-lg font-semibold text-[#fafafa] hover:text-blue-400 transition-colors"
+                    aria-label={`Open ${item.title}`}
+                    className={`relative block aspect-[16/10] overflow-hidden border-b border-[#1f1f28] bg-[#06060B] lg:border-b-0 ${
+                      imageOnRight ? 'lg:order-2 lg:border-l' : 'lg:border-r'
+                    }`}
                   >
-                    {item.title}
-                    <span className="inline-block ml-1.5 text-[#a1a1aa] text-sm group-hover:text-blue-400 transition-colors">&#8599;</span>
+                    <Image
+                      src={item.image}
+                      alt={item.imageAlt}
+                      fill
+                      priority={index === 0}
+                      sizes="(min-width: 1024px) 540px, 100vw"
+                      className="product-shot object-cover transition duration-500 group-hover:scale-[1.02]"
+                    />
                   </a>
-                ) : (
-                  <h3 className="text-lg font-semibold text-[#fafafa]">{item.title}</h3>
-                )}
-                <span className="text-sm text-[#a1a1aa]/50">{item.label}</span>
-              </div>
-              <p className="text-sm text-[#a1a1aa] leading-relaxed mb-4 max-w-2xl">
-                {item.description}
-              </p>
-              <span className="text-xs text-[#a1a1aa]/50 bg-[#16161e] border border-[#1f1f28] px-2.5 py-1 rounded-md">
-                {item.status}
-              </span>
-            </div>
-          ))}
+                  <div className={`min-w-0 p-6 sm:p-7 flex flex-col justify-between ${imageOnRight ? 'lg:order-1' : ''}`}>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-4">
+                        <span className="text-xs text-[#a1a1aa]/60 bg-[#16161e] border border-[#1f1f28] px-2.5 py-1 rounded-md">
+                          {item.status}
+                        </span>
+                        <span className="text-xs text-[#a1a1aa]/50">{item.metric}</span>
+                      </div>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener"
+                        className="text-xl font-semibold text-[#fafafa] hover:text-blue-400 transition-colors"
+                      >
+                        {item.title}
+                        <span className="inline-block ml-1.5 text-[#a1a1aa] text-sm group-hover:text-blue-400 transition-colors">&#8599;</span>
+                      </a>
+                      <p className="text-sm text-[#fafafa]/70 mt-2">{item.label}</p>
+                      <p className="text-sm text-[#a1a1aa] leading-relaxed mt-4">
+                        {item.description}
+                      </p>
+                    </div>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener"
+                      className="mt-6 inline-flex w-fit text-sm text-[#fafafa] border border-[#2a2a35] hover:border-[#3a3a45] transition-colors px-4 py-2 rounded-md font-medium"
+                    >
+                      Open product
+                    </a>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -223,14 +273,14 @@ function Work() {
 function Capabilities() {
   return (
     <section id="capabilities" className="py-20 sm:py-24 border-t border-[#1f1f28]">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-5xl mx-auto px-6">
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Capabilities</h2>
           <p className="text-sm text-[#a1a1aa]">Where product, partnerships, and execution overlap</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {capabilities.map((cap) => (
-            <div key={cap.title} className="bg-[#0a0a10] border border-[#1f1f28] rounded-xl p-6">
+            <div key={cap.title} className="bg-[#0a0a10] border border-[#1f1f28] rounded-lg p-6">
               <h3 className="text-sm font-semibold text-[#fafafa] mb-3">{cap.title}</h3>
               <p className="text-sm text-[#a1a1aa] leading-relaxed">{cap.description}</p>
             </div>
@@ -244,7 +294,7 @@ function Capabilities() {
 function Contact() {
   return (
     <section id="contact" className="py-20 sm:py-24 border-t border-[#1f1f28]">
-      <div className="max-w-4xl mx-auto px-6 text-center">
+      <div className="max-w-5xl mx-auto px-6 text-center">
         <h2 className="text-2xl font-semibold text-[#fafafa] mb-3">Let&apos;s talk</h2>
         <p className="text-sm text-[#a1a1aa] mb-8 max-w-md mx-auto leading-relaxed">
           Open to partnerships, GTM, and operator roles where product
@@ -264,7 +314,7 @@ function Contact() {
 function Footer() {
   return (
     <footer className="py-8 border-t border-[#1f1f28]">
-      <div className="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-xs text-[#a1a1aa]/40">&copy; 2026 Taborlin</p>
         <div className="flex gap-6 text-xs text-[#a1a1aa]/40">
           <a href="#work" className="hover:text-[#a1a1aa] transition-colors">Work</a>
