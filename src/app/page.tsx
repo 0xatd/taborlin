@@ -21,28 +21,21 @@ export const metadata: Metadata = {
   },
 };
 
-const focusAreas = [
+const stats = [
   {
-    title: 'Software & Tools',
-    headline: 'Working surfaces for repeatable operating loops.',
-    description:
-      'We build products, APIs, dashboards, and review queues for work that should not live in scattered tabs, spreadsheets, or one-off scripts.',
-    points: [
-      'Agent-operated workflows with human approval where it matters',
-      'Paid APIs, checkout flows, account systems, and internal tools',
-      'Production builds with visible previews, tests, and deployment gates',
-    ],
+    value: 'AI Agents',
+    metric: 'Complex investigative work',
+    label: 'Research, builds, reviews, ops, and approvals.',
   },
   {
-    title: 'Data & Content',
-    headline: 'Signals, records, and ideas turned into useful output.',
-    description:
-      'We connect market, weather, onchain, business, and AI-provider data to research, maps, briefs, content systems, and better decisions.',
-    points: [
-      'Markets, weather, onchain transactions, wallets, and business ops data',
-      'Source-backed research, maps, briefs, and decision support',
-      'Approval-first social/content systems with measurement loops',
-    ],
+    value: 'Software & Tools',
+    metric: 'Repeatable work as software',
+    label: 'Products, APIs, dashboards, and operating workflows.',
+  },
+  {
+    value: 'Data & Content',
+    metric: 'Signals shaped into output',
+    label: 'Markets, weather, onchain, ops, research, and content systems.',
   },
 ];
 
@@ -176,28 +169,20 @@ function Hero() {
   );
 }
 
-function FocusAreas() {
+function Stats() {
   return (
     <section className="pb-20 sm:pb-24">
       <div className="max-w-5xl mx-auto px-6">
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          {focusAreas.map((area) => (
-            <article key={area.title} className="min-w-0 rounded-lg border border-[#1f1f28] bg-[#0a0a10] p-6 sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a1a1aa]/55">{area.title}</p>
-              <h2 className="mt-4 text-xl sm:text-2xl font-semibold leading-tight text-[#fafafa]">
-                {area.headline}
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-[#a1a1aa]">
-                {area.description}
-              </p>
-              <ul className="mt-6 space-y-3 border-t border-[#1f1f28] pt-5">
-                {area.points.map((point) => (
-                  <li key={point} className="text-sm leading-relaxed text-[#fafafa]/72">
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </article>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 border border-[#1f1f28] rounded-lg p-5 sm:p-6 bg-[#0a0a10]">
+          {stats.map((stat, i) => (
+            <div
+              key={stat.label}
+              className={`min-w-0 text-left ${i < stats.length - 1 ? 'sm:border-r sm:border-[#1f1f28] sm:pr-5' : ''}`}
+            >
+              <p className="text-xl sm:text-2xl font-semibold text-[#fafafa]">{stat.value}</p>
+              <p className="text-xs font-medium text-[#fafafa]/70 mt-2">{stat.metric}</p>
+              <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-2 leading-relaxed break-words">{stat.label}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -348,7 +333,7 @@ export default function HomePage() {
       <Navbar />
       <main className="relative z-10">
         <Hero />
-        <FocusAreas />
+        <Stats />
         <LogoStrip />
         <Work />
         <Capabilities />
