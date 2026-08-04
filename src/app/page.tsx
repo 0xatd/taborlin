@@ -24,65 +24,54 @@ export const metadata: Metadata = {
 const stats = [
   {
     value: 'Agents',
-    metric: '3 approval-first workflows',
-    label: 'Sales, social, and operations surfaces where agents do the work and humans approve.',
+    metric: 'Complex, intensive work',
+    label: 'Research, drafting, monitoring, and account work that needs more context than a simple automation.',
   },
   {
     value: 'Software',
-    metric: '5 live product surfaces',
-    label: 'Focused apps with real users, payments, APIs, auth, workflow state, or production ops.',
+    metric: 'Task automation and standard workflows',
+    label: 'Focused apps that move repeatable work through queues, APIs, approvals, and operating state.',
   },
   {
     value: 'Data',
-    metric: 'Live feeds + audit trails',
-    label: 'Market data, spatial data, onchain records, metrics, and source catalogs built in.',
+    metric: 'Insights for better decisions',
+    label: 'Market, spatial, onchain, and operational data turned into cleaner context and clearer calls.',
   },
 ];
 
 const work = [
   {
     title: 'CheapTokens',
-    label: 'Cheaper Venice inference, same day',
+    label: 'Discounted Venice API credits',
     url: 'https://cheaptokens.ai',
     status: 'Live product',
-    metric: 'Up to 90% off same-day credits',
+    metric: 'x402 checkout for AI inference',
     image: '/product-screenshots/cheaptokens.png',
-    imageAlt: 'CheapTokens homepage showing same-day Venice API credit pricing',
+    imageAlt: 'CheapTokens homepage showing discounted Venice API credit pricing',
     description:
-      'Buy discounted Venice API credits that expire at midnight UTC. Pay once, get a Venice-compatible key, and run real model calls without a subscription.',
+      'Buy discounted Venice API credits with USDC, get a Venice-compatible API key, and run model calls through a simple developer flow without a subscription.',
   },
   {
     title: 'Champion',
-    label: 'Rep-owned sales memory and follow-up agent',
+    label: 'The personal AI rolodex for successful AEs.',
     url: 'https://champion.taborlin.co',
     status: 'Live product',
-    metric: 'Account memory for AE and BD loops',
+    metric: 'Private alpha for revenue operators',
     image: '/product-screenshots/champion.png',
     imageAlt: 'Champion homepage for a personal AI rolodex for successful account executives',
     description:
-      'Champion gives revenue operators a personal sales agent for account research, relationship memory, meeting prep, follow-up drafts, stale-deal revival, and CRM handoff.',
+      'Champion gives AE and BD professionals a portable revenue memory layer plus a personal sales agent that keeps the best-practice selling loop moving.',
   },
   {
     title: 'Soshi',
-    label: 'Approval-first social operations',
+    label: 'Run every social account from one approval queue.',
     url: 'https://soshi.taborlin.co',
     status: 'Live product',
-    metric: 'One queue for drafts, replies, and schedules',
+    metric: 'Draft, approve, schedule, measure, repeat',
     image: '/product-screenshots/soshi.png',
     imageAlt: 'Soshi homepage showing an approval-first social operations queue',
     description:
-      'Soshi turns account strategy, drafts, reply targets, schedules, and metrics into a review queue so agents can move the loop while humans clear public output.',
-  },
-  {
-    title: 'Spatix',
-    label: 'Spatial data to APIs and maps',
-    url: 'https://spatix.io',
-    status: 'Open-source tool',
-    metric: 'Datasets to API in about 2 seconds',
-    image: '/product-screenshots/spatix.png',
-    imageAlt: 'Spatix homepage showing spatial data publishing and API generation',
-    description:
-      'Spatix turns uploaded datasets into shareable maps, API endpoints, and agent-readable geodata without a GIS team or vendor-heavy workflow.',
+      'Plan, draft, review, schedule, and measure X-first growth work with AI assistance while every public post stays behind human approval.',
   },
   {
     title: 'Open Crypto Tax Helper',
@@ -213,62 +202,68 @@ function Work() {
           </p>
         </div>
         <div className="space-y-5">
-          {work.map((item, index) => (
-            <article
-              key={item.title}
-              className="group overflow-hidden bg-[#0a0a10] border border-[#1f1f28] rounded-lg hover:border-[#2a2a35] transition-all"
-            >
-              <div className="grid lg:grid-cols-[1.08fr_0.92fr]">
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener"
-                  aria-label={`Open ${item.title}`}
-                  className="relative block aspect-[16/10] overflow-hidden border-b border-[#1f1f28] bg-[#06060B] lg:border-b-0 lg:border-r"
-                >
-                  <Image
-                    src={item.image}
-                    alt={item.imageAlt}
-                    fill
-                    priority={index === 0}
-                    sizes="(min-width: 1024px) 540px, 100vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  />
-                </a>
-                <div className="min-w-0 p-6 sm:p-7 flex flex-col justify-between">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
-                      <span className="text-xs text-[#a1a1aa]/60 bg-[#16161e] border border-[#1f1f28] px-2.5 py-1 rounded-md">
-                        {item.status}
-                      </span>
-                      <span className="text-xs text-[#a1a1aa]/50">{item.metric}</span>
+          {work.map((item, index) => {
+            const imageOnRight = index % 2 === 1;
+
+            return (
+              <article
+                key={item.title}
+                className="product-card group overflow-hidden bg-[#0a0a10] border border-[#1f1f28] rounded-lg hover:border-[#2a2a35] transition-all"
+              >
+                <div className={imageOnRight ? 'grid lg:grid-cols-[0.92fr_1.08fr]' : 'grid lg:grid-cols-[1.08fr_0.92fr]'}>
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={`Open ${item.title}`}
+                    className={`relative block aspect-[16/10] overflow-hidden border-b border-[#1f1f28] bg-[#06060B] lg:border-b-0 ${
+                      imageOnRight ? 'lg:order-2 lg:border-l' : 'lg:border-r'
+                    }`}
+                  >
+                    <Image
+                      src={item.image}
+                      alt={item.imageAlt}
+                      fill
+                      priority={index === 0}
+                      sizes="(min-width: 1024px) 540px, 100vw"
+                      className="product-shot object-cover transition duration-500 group-hover:scale-[1.02]"
+                    />
+                  </a>
+                  <div className={`min-w-0 p-6 sm:p-7 flex flex-col justify-between ${imageOnRight ? 'lg:order-1' : ''}`}>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-4">
+                        <span className="text-xs text-[#a1a1aa]/60 bg-[#16161e] border border-[#1f1f28] px-2.5 py-1 rounded-md">
+                          {item.status}
+                        </span>
+                        <span className="text-xs text-[#a1a1aa]/50">{item.metric}</span>
+                      </div>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener"
+                        className="text-xl font-semibold text-[#fafafa] hover:text-blue-400 transition-colors"
+                      >
+                        {item.title}
+                        <span className="inline-block ml-1.5 text-[#a1a1aa] text-sm group-hover:text-blue-400 transition-colors">&#8599;</span>
+                      </a>
+                      <p className="text-sm text-[#fafafa]/70 mt-2">{item.label}</p>
+                      <p className="text-sm text-[#a1a1aa] leading-relaxed mt-4">
+                        {item.description}
+                      </p>
                     </div>
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener"
-                      className="text-xl font-semibold text-[#fafafa] hover:text-blue-400 transition-colors"
+                      className="mt-6 inline-flex w-fit text-sm text-[#fafafa] border border-[#2a2a35] hover:border-[#3a3a45] transition-colors px-4 py-2 rounded-md font-medium"
                     >
-                      {item.title}
-                      <span className="inline-block ml-1.5 text-[#a1a1aa] text-sm group-hover:text-blue-400 transition-colors">&#8599;</span>
+                      Open product
                     </a>
-                    <p className="text-sm text-[#fafafa]/70 mt-2">{item.label}</p>
-                    <p className="text-sm text-[#a1a1aa] leading-relaxed mt-4">
-                      {item.description}
-                    </p>
                   </div>
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener"
-                    className="mt-6 inline-flex w-fit text-sm text-[#fafafa] border border-[#2a2a35] hover:border-[#3a3a45] transition-colors px-4 py-2 rounded-md font-medium"
-                  >
-                    Open product
-                  </a>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
