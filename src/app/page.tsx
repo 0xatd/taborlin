@@ -23,19 +23,19 @@ export const metadata: Metadata = {
 
 const stats = [
   {
-    value: 'Agents',
-    metric: 'Complex, intensive work',
-    label: 'Research, drafting, monitoring, and account work that needs more context than a simple automation.',
+    value: 'AI Agents',
+    metric: '3 approval-first loops',
+    label: 'Sales, social, and operator workflows.',
   },
   {
     value: 'Software',
-    metric: 'Task automation and standard workflows',
-    label: 'Focused apps that move repeatable work through queues, APIs, approvals, and operating state.',
+    metric: '4 public product surfaces',
+    label: 'Live apps and tools, not concepts.',
   },
   {
     value: 'Data',
-    metric: 'Insights for better decisions',
-    label: 'Market, spatial, onchain, and operational data turned into cleaner context and clearer calls.',
+    metric: '4 decision domains',
+    label: 'Markets, weather, onchain, and ops data.',
   },
 ];
 
