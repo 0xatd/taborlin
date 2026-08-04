@@ -145,9 +145,9 @@ function Hero() {
             <span className="block text-[#a1a1aa]">and applied AI products.</span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-[#a1a1aa] max-w-3xl leading-relaxed">
-            We ship focused products that buy inference, manage accounts, publish
-            with approval, map data, and reconcile records. Agents do more of the
-            work; humans keep control.
+            Current focus: making autonomous systems useful in the real world —
+            agent-native operations, paid APIs, prediction-market tooling, and
+            onchain inference payments.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-8">
             <a
