@@ -24,18 +24,15 @@ export const metadata: Metadata = {
 const stats = [
   {
     value: 'AI Agents',
-    metric: 'Complex investigative work',
     label: 'We build AI agents that complete complex, time-intensive work so teams can move faster.',
   },
   {
     value: 'Software & Tools',
-    metric: 'Repeatable work as software',
     label:
       'We build software and internal tools that automate routine work, clarify data and trends, and help teams communicate more effectively.',
   },
   {
     value: 'Data & Content',
-    metric: 'Signals shaped into output',
     label:
       'We use open and proprietary data to make AI agents and software more accurate, more useful, and more effective.',
   },
@@ -182,7 +179,6 @@ function Stats() {
               className={`min-w-0 text-left ${i < stats.length - 1 ? 'sm:border-r sm:border-[#1f1f28] sm:pr-5' : ''}`}
             >
               <p className="text-xl sm:text-2xl font-semibold text-[#fafafa]">{stat.value}</p>
-              <p className="text-xs font-medium text-[#fafafa]/70 mt-2">{stat.metric}</p>
               <p className="text-xs sm:text-sm text-[#a1a1aa]/60 mt-2 leading-relaxed break-words">{stat.label}</p>
             </div>
           ))}
