@@ -25,17 +25,19 @@ const stats = [
   {
     value: 'AI Agents',
     metric: 'Complex investigative work',
-    label: 'Research, builds, reviews, ops, and approvals.',
+    label: 'We build AI agents that complete complex, time-intensive work so teams can move faster.',
   },
   {
     value: 'Software & Tools',
     metric: 'Repeatable work as software',
-    label: 'Products, APIs, dashboards, and operating workflows.',
+    label:
+      'We build software and internal tools that automate routine work, clarify data and trends, and help teams communicate more effectively.',
   },
   {
     value: 'Data & Content',
     metric: 'Signals shaped into output',
-    label: 'Markets, weather, onchain, ops, research, and content systems.',
+    label:
+      'We use open and proprietary data to make AI agents and software more accurate, more useful, and more effective.',
   },
 ];
 
