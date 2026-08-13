@@ -41,47 +41,36 @@ const stats = [
 const work = [
   {
     title: 'CheapTokens',
-    label: 'Discounted Venice API credits',
+    label: 'Discounted AI inference credits for developers',
     url: 'https://cheaptokens.ai',
     status: 'Live product',
-    metric: 'x402 checkout for AI inference',
+    metric: 'Revenue product with checkout and API-key provisioning',
     image: '/product-screenshots/cheaptokens.png',
     imageAlt: 'CheapTokens homepage showing discounted Venice API credit pricing',
     description:
-      'Buy discounted Venice API credits with USDC, get a Venice-compatible API key, and run model calls through a simple developer flow without a subscription.',
+      'CheapTokens lets developers buy discounted Venice API credits, pay through a lightweight checkout flow, and start using a compatible API key without a sales call or subscription.',
   },
   {
     title: 'Champion',
-    label: 'The personal AI rolodex for successful AEs.',
+    label: 'Sales memory for AE and BD workflows',
     url: 'https://champion.taborlin.co',
-    status: 'Live product',
-    metric: 'Private alpha for revenue operators',
+    status: 'Private alpha',
+    metric: 'Account research, follow-up, and deal memory',
     image: '/product-screenshots/champion.png',
     imageAlt: 'Champion homepage for a personal AI rolodex for successful account executives',
     description:
-      'Champion gives AE and BD professionals a portable revenue memory layer plus a personal sales agent that keeps the best-practice selling loop moving.',
+      'Champion is a private sales-memory tool for account research, contacts, meetings, follow-up, and next-best actions, built around the relationship context that usually gets lost inside company CRMs.',
   },
   {
     title: 'Soshi',
-    label: 'Run every social account from one approval queue.',
+    label: 'Audience growth tool',
     url: 'https://soshi.taborlin.co',
-    status: 'Live product',
-    metric: 'Draft, approve, schedule, measure, repeat',
+    status: 'Internal tool',
+    metric: 'Content ideas, scheduling, analytics, and repeatable growth loops',
     image: '/product-screenshots/soshi.png',
-    imageAlt: 'Soshi homepage showing an approval-first social operations queue',
+    imageAlt: 'Soshi homepage showing a social media growth workspace',
     description:
-      'Plan, draft, review, schedule, and measure X-first growth work with AI assistance while every public post stays behind human approval.',
-  },
-  {
-    title: 'Open Crypto Tax Helper',
-    label: 'Self-hosted crypto records for agent review',
-    url: 'https://onchain-wallets-dashboard.vercel.app',
-    status: 'Open-source tool',
-    metric: 'Wallet records, proposed fixes, and audit logs',
-    image: '/product-screenshots/open-crypto-tax-helper.png',
-    imageAlt: 'Open Crypto Tax Helper preview showing missing cost basis review and agent proposals',
-    description:
-      'Organize wallet and exchange records, surface missing cost basis, let agents propose fixes, and keep the audit trail under your control.',
+      'Soshi helps Taborlin turn product work into social content, build a consistent publishing calendar, track what performs, and double down on the formats that grow audience, leads, and attention.',
   },
 ];
 
@@ -195,8 +184,8 @@ function Work() {
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products & Tools</h2>
           <p className="text-sm text-[#a1a1aa] max-w-2xl">
-            The strongest public surfaces: products that are live, tools that are useful,
-            and proof that agents can operate inside real software loops.
+            Live products and working tools from Taborlin: AI infrastructure, sales memory,
+            and audience growth.
           </p>
         </div>
         <div className="space-y-5">
