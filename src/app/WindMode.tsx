@@ -895,8 +895,7 @@ function MapboxBackdrop({
 
         const handleResize = () => {
           if (!map) return;
-          const camera = viewportCamera();
-          map.easeTo({ ...camera, duration: 0 });
+          map.resize();
           publishBounds();
         };
 
@@ -1099,6 +1098,17 @@ function WindCanvas({
   const boltsRef = useRef<LightningBolt[]>([]);
   const effectCounterRef = useRef(0);
   const reducedMotion = useReducedMotion();
+  const fieldRef = useRef(field);
+  const previousFieldRef = useRef(field);
+  const fieldChangedAtRef = useRef(0);
+  const redrawRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    previousFieldRef.current = fieldRef.current;
+    fieldRef.current = field;
+    fieldChangedAtRef.current = performance.now();
+    redrawRef.current?.();
+  }, [field]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1113,15 +1123,20 @@ function WindCanvas({
     let raf = 0;
     let lastFrameTime = 0;
     let lastCameraKey = '';
-
-    const dataBounds = boundsFromPoints(field.points);
+    let previousCamera: { lon: number; lat: number; zoom: number } | null = null;
+    const trailBuffer = document.createElement('canvas');
+    const trailContext = trailBuffer.getContext('2d');
 
     const resize = () => {
+      const dataBounds = boundsFromPoints(fieldRef.current.points);
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = Math.floor(width * ratio);
       canvas.height = Math.floor(height * ratio);
+      trailBuffer.width = canvas.width;
+      trailBuffer.height = canvas.height;
+      previousCamera = null;
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -1132,7 +1147,13 @@ function WindCanvas({
       }
 
       const count = Math.min(2400, Math.max(320, Math.floor((width * height) / 950)));
-      particlesRef.current = Array.from({ length: count }, () => {
+      const existing = particlesRef.current;
+      particlesRef.current = Array.from({ length: count }, (_, index) => {
+        if (existing[index]) {
+          existing[index].px = Number.NaN;
+          existing[index].py = Number.NaN;
+          return existing[index];
+        }
         const particle = { lon: 0, lat: 0, px: Number.NaN, py: Number.NaN, age: 0, maxAge: 220 };
         resetParticle(particle, dataBounds);
         particle.age = Math.floor(Math.random() * particle.maxAge);
@@ -1171,34 +1192,57 @@ function WindCanvas({
     };
 
     let lastTap: { time: number; x: number; y: number } | null = null;
-    const handleTouchEnd = (event: TouchEvent) => {
-      if (
-        reducedMotion ||
-        event.touches.length > 0 ||
-        event.changedTouches.length < 2 ||
-        isInteractiveTarget(event.target)
-      ) {
+    let touchTap: { startedAt: number; x: number; y: number; starts: { id: number; x: number; y: number }[]; moved: boolean } | null = null;
+    const handleTouchStart = (event: TouchEvent) => {
+      if (isInteractiveTarget(event.target) || event.touches.length > 2) {
+        touchTap = null;
+        lastTap = null;
         return;
       }
-
-      const touches = Array.from(event.changedTouches);
-      const x = touches.reduce((sum, touch) => sum + touch.clientX, 0) / touches.length;
-      const y = touches.reduce((sum, touch) => sum + touch.clientY, 0) / touches.length;
+      if (event.touches.length === 2) {
+        const touches = Array.from(event.touches);
+        touchTap = {
+          startedAt: performance.now(),
+          x: (touches[0].clientX + touches[1].clientX) / 2,
+          y: (touches[0].clientY + touches[1].clientY) / 2,
+          starts: touches.map((touch) => ({ id: touch.identifier, x: touch.clientX, y: touch.clientY })),
+          moved: false,
+        };
+      }
+    };
+    const handleTouchMove = (event: TouchEvent) => {
+      // Allow normal fingertip jitter, but reject actual pans and pinches.
+      if (!touchTap) return;
+      for (const touch of Array.from(event.touches)) {
+        const start = touchTap.starts.find((point) => point.id === touch.identifier);
+        if (start && Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 12) {
+          touchTap.moved = true;
+          lastTap = null;
+        }
+      }
+    };
+    const handleTouchCancel = () => { touchTap = null; lastTap = null; };
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (!touchTap || event.touches.length > 0) return;
+      const tap = touchTap;
+      touchTap = null;
       const now = performance.now();
-
-      if (
-        lastTap &&
-        now - lastTap.time < 340 &&
-        Math.hypot(x - lastTap.x, y - lastTap.y) < 40
-      ) {
-        spawnEffect(x, y);
+      if (reducedMotion || tap.moved || now - tap.startedAt > 300 ||
+        !Array.from(event.changedTouches).some((touch) => tap.starts.some((point) => point.id === touch.identifier))) {
+        lastTap = null;
+        return;
+      }
+      if (lastTap && now - lastTap.time < 340 && Math.hypot(tap.x - lastTap.x, tap.y - lastTap.y) < 40) {
+        spawnEffect(tap.x, tap.y);
         lastTap = null;
       } else {
-        lastTap = { time: now, x, y };
+        lastTap = { time: now, x: tap.x, y: tap.y };
       }
     };
 
     const animate = (now: number) => {
+      const field = fieldRef.current;
+      const dataBounds = boundsFromPoints(field.points);
       if (reducedMotion) {
         if (useFallbackMap) {
           drawBaseMap(context, width, height);
@@ -1229,16 +1273,29 @@ function WindCanvas({
       const cameraMoved = cameraKey !== lastCameraKey && lastCameraKey !== '';
       lastCameraKey = cameraKey;
 
-      if (useFallbackMap) {
-        if (frame % 240 === 1) {
-          drawBaseMap(context, width, height);
+      // Reproject the accumulated trails as well as their particle heads. This
+      // map is Mercator with no pitch or bearing, so an affine transform is exact.
+      if (map && !useFallbackMap) {
+        const origin = map.unproject([0, 0]);
+        const zoom = map.getZoom();
+        if (cameraMoved && previousCamera && trailContext) {
+          trailContext.clearRect(0, 0, trailBuffer.width, trailBuffer.height);
+          trailContext.drawImage(canvas, 0, 0);
+          const offset = map.project([previousCamera.lon, previousCamera.lat]);
+          const scale = 2 ** (zoom - previousCamera.zoom);
+          context.clearRect(0, 0, width, height);
+          context.drawImage(trailBuffer, offset.x, offset.y, width * scale, height * scale);
         }
-        context.fillStyle = 'rgba(2, 7, 17, 0.08)';
+        previousCamera = { lon: origin.lng, lat: origin.lat, zoom };
+      }
+      if (useFallbackMap) {
+        if (frame % 240 === 1) drawBaseMap(context, width, height);
+        context.fillStyle = `rgba(2, 7, 17, ${1 - 0.92 ** dt})`;
         context.fillRect(0, 0, width, height);
       } else {
         context.save();
         context.globalCompositeOperation = 'destination-out';
-        context.fillStyle = cameraMoved ? 'rgba(0, 0, 0, 0.18)' : 'rgba(0, 0, 0, 0.068)';
+        context.fillStyle = `rgba(0, 0, 0, ${1 - 0.932 ** dt})`;
         context.fillRect(0, 0, width, height);
         context.restore();
       }
@@ -1312,6 +1369,7 @@ function WindCanvas({
       context.lineJoin = 'round';
       context.globalCompositeOperation = 'source-over';
 
+      const fieldBlend = Math.min(1, Math.max(0, (now - fieldChangedAtRef.current) / 1600));
       particlesRef.current.forEach((particle) => {
         if (cameraMoved || Number.isNaN(particle.px)) {
           const projected = projectForView(map, particle.lon, particle.lat, width, height);
@@ -1328,7 +1386,10 @@ function WindCanvas({
             storms,
             startX,
             startY,
-            sampleWind(field, particle.lon, particle.lat),
+            fieldBlend < 1
+              ? mixWind(sampleWind(previousFieldRef.current, particle.lon, particle.lat),
+                sampleWind(field, particle.lon, particle.lat), fieldBlend)
+              : sampleWind(field, particle.lon, particle.lat),
           );
           const hours = (hoursPerFrame * dt) / 2;
           const cosLat = Math.max(0.2, Math.cos((particle.lat * Math.PI) / 180));
@@ -1367,9 +1428,7 @@ function WindCanvas({
         const fadeIn = Math.min(1, particle.age / 12);
         const fadeOut = Math.min(1, (particle.maxAge - particle.age) / 30);
         const speedAlpha = Math.min(0.88, 0.28 + renderSpeed / 80);
-        const cameraAlpha = cameraMoved ? 0.7 : 1;
-
-        context.globalAlpha = Math.max(0.03, fadeIn * fadeOut * speedAlpha * cameraAlpha);
+        context.globalAlpha = Math.max(0.03, fadeIn * fadeOut * speedAlpha);
         context.lineWidth = Math.min(1.9, 0.75 + renderSpeed / 42);
         context.strokeStyle = speedColor(renderSpeed);
         context.beginPath();
@@ -1389,19 +1448,37 @@ function WindCanvas({
       raf = requestAnimationFrame(animate);
     };
 
+    const redraw = () => {
+      if (reducedMotion) {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(animate);
+      }
+    };
+    redrawRef.current = redraw;
+    const handleResize = () => { resize(); redraw(); };
+    const activeMap = mapRef.current;
+    activeMap?.on('move', redraw);
     resize();
     raf = requestAnimationFrame(animate);
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', handleResize);
     window.addEventListener('dblclick', handleDoubleClick);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchcancel', handleTouchCancel);
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', handleResize);
+      activeMap?.off('move', redraw);
+      redrawRef.current = null;
       window.removeEventListener('dblclick', handleDoubleClick);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchcancel', handleTouchCancel);
     };
-  }, [field, reducedMotion, useFallbackMap, mapRef]);
+  }, [reducedMotion, useFallbackMap, mapRef]);
 
   return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
@@ -1440,9 +1517,13 @@ export default function WindMode() {
     let cancelled = false;
     let refreshTimer = 0;
 
+    const controller = new AbortController();
     const refreshWind = () => {
-      fetch(windRequestUrl)
-        .then((response) => response.json() as Promise<WindPayload>)
+      fetch(windRequestUrl, { signal: controller.signal })
+        .then((response) => {
+          if (!response.ok) throw new Error('Wind request failed');
+          return response.json() as Promise<WindPayload>;
+        })
         .then((data) => {
           if (!cancelled) {
             setPayload((current) => {
@@ -1450,6 +1531,10 @@ export default function WindMode() {
                 return current;
               }
 
+              // Equivalent refreshes should not trigger a new field transition.
+              if (current && JSON.stringify(current.points) === JSON.stringify(data.points)
+                && JSON.stringify(current.grid) === JSON.stringify(data.grid)
+                && current.dataUpdatedAt === data.dataUpdatedAt) return current;
               return data;
             });
           }
@@ -1474,6 +1559,7 @@ export default function WindMode() {
 
     return () => {
       cancelled = true;
+      controller.abort();
       window.clearInterval(refreshTimer);
     };
   }, [enabled, loadedPreference, windRequestUrl]);
