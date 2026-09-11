@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-export const revalidate = 900;
 export const dynamic = 'force-dynamic';
 
 type OpenMeteoPoint = {
@@ -34,7 +33,7 @@ type SanitizedWindPoint = WindPoint & {
 const OPEN_METEO_CHUNK_SIZE = 600;
 const OPEN_METEO_CHUNK_DELAY_MS = 500;
 const DEFAULT_MAX_SAMPLE_POINTS = 220;
-const VIEWPORT_MAX_SAMPLE_POINTS = 220;
+const VIEWPORT_MAX_SAMPLE_POINTS = 600;
 const DEFAULT_BOUNDS: WindBounds = {
   minLon: -215,
   maxLon: -32,
@@ -257,7 +256,31 @@ function delay(ms: number) {
   });
 }
 
+// Share canonical grids across nearby camera URLs without returning expired data.
+// The bound prevents an unbounded cache on long-lived server processes.
+const fieldCache = new Map<string, {
+  expiresAt: number;
+  result: Promise<SanitizedWindPoint[]>;
+}>();
+
 async function fetchOpenMeteoPoints(points: { lat: number; lon: number }[]) {
+  const key = JSON.stringify(points);
+  const cached = fieldCache.get(key);
+  if (cached && cached.expiresAt > Date.now()) return cached.result;
+  const result = fetchFreshOpenMeteoPoints(points);
+  const entry = { expiresAt: Date.now() + 5 * 60 * 1000, result };
+  fieldCache.delete(key);
+  fieldCache.set(key, entry);
+  if (fieldCache.size > 64) fieldCache.delete(fieldCache.keys().next().value!);
+  try {
+    return await result;
+  } catch (error) {
+    if (fieldCache.get(key) === entry) fieldCache.delete(key);
+    throw error;
+  }
+}
+
+async function fetchFreshOpenMeteoPoints(points: { lat: number; lon: number }[]) {
   const latitude = points.map((point) => point.lat).join(',');
   const longitude = points.map((point) => normalizeLongitude(point.lon)).join(',');
   const url = new URL('https://api.open-meteo.com/v1/forecast');
@@ -269,7 +292,9 @@ async function fetchOpenMeteoPoints(points: { lat: number; lon: number }[]) {
   url.searchParams.set('timezone', 'UTC');
 
   const response = await fetch(url, {
-    next: { revalidate },
+    // CDN caches the complete field. Avoid a second stale upstream cache.
+    cache: 'no-store',
+    signal: AbortSignal.timeout(10000),
     headers: {
       Accept: 'application/json',
     },
@@ -290,7 +315,8 @@ export async function GET(request: Request) {
   const bounds = canonicalBounds(parseBounds(url), requestedBounds);
   const grid = buildGrid(
     bounds,
-    requestedBounds ? VIEWPORT_MAX_SAMPLE_POINTS : DEFAULT_MAX_SAMPLE_POINTS,
+    requestedBounds && !isBroadDefaultCamera(bounds)
+      ? VIEWPORT_MAX_SAMPLE_POINTS : DEFAULT_MAX_SAMPLE_POINTS,
   );
   const samplePoints = gridPoints(grid);
 
@@ -330,7 +356,7 @@ export async function GET(request: Request) {
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=1800',
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
         },
       },
     );
