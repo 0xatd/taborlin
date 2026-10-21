@@ -1,12 +1,8 @@
 # Taborlin
 
-## What this is
+The website for Taborlin, a consulting business and home for independent software projects across AI, developer tools, maps, games, and payments.
 
-Taborlin is the company/domain website. It should explain the company and route people to the right product surfaces, not carry product-specific workflow state.
-
-Status: active public company site. Keep it simple, credible, and low-maintenance.
-
-We build tools for the internet.
+**Status: active company website.** Project code lives in separate repositories. For current work and retired-project case studies, see the [project portfolio](https://github.com/0xatd).
 
 ## Development
 
