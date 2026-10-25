@@ -1,32 +1,65 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Fraunces, Inter } from 'next/font/google';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './globals.css';
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from './site';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-fraunces',
+  axes: ['opsz', 'SOFT'],
+});
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://taborlin.co'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Taborlin — Building Agents and Applied AI Products',
+    default: SITE_TITLE,
     template: '%s — Taborlin',
   },
-  description:
-    'Taborlin builds agents and applied AI products for inference, sales, social operations, maps, and data workflows.',
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    'AI agents',
+    'AI consulting',
+    'applied AI',
+    'agent development',
+    'internal tools',
+    'workflow automation',
+    'software consulting',
+    'Taborlin',
+  ],
   openGraph: {
-    title: 'Taborlin — Building Agents and Applied AI Products',
-    description:
-      'Taborlin builds agents and applied AI products for inference, sales, social operations, maps, and data workflows.',
-    url: 'https://taborlin.co',
-    siteName: 'Taborlin',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     type: 'website',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Taborlin — Building Agents and Applied AI Products',
-    description:
-      'Taborlin builds agents and applied AI products for inference, sales, social operations, maps, and data workflows.',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
   },
   alternates: {
-    canonical: 'https://taborlin.co',
+    canonical: SITE_URL,
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#07070c',
+  colorScheme: 'dark',
 };
 
 export default function RootLayout({
@@ -35,7 +68,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark ${inter.variable} ${fraunces.variable}`}>
       <body className="font-sans antialiased">
         <script
           type="application/ld+json"
@@ -43,11 +76,13 @@ export default function RootLayout({
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'Organization',
-              name: 'Taborlin',
-              url: 'https://taborlin.co',
-              description:
-                'Taborlin builds agents and applied AI products for inference, sales, social operations, maps, and data workflows.',
+              name: SITE_NAME,
+              url: SITE_URL,
+              email: 'hello@taborlin.co',
+              description: SITE_DESCRIPTION,
+              knowsAbout: ['AI agents', 'Applied AI', 'Software development', 'Data products'],
               sameAs: [
+                'https://github.com/0xatd',
                 'https://cheaptokens.ai',
                 'https://champion.taborlin.co',
                 'https://soshi.taborlin.co',
