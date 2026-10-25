@@ -51,7 +51,7 @@ const companies: Company[] = [
   { name: 'Trueo', fallback: 'TRUEO', textClassName: 'font-bold tracking-[0.12em]' },
 ];
 
-function LogoItem({ company, hidden = false }: { company: Company; hidden?: boolean }) {
+function LogoItem({ company }: { company: Company }) {
   const [failed, setFailed] = useState(false);
 
   // Wrap every entry in a tooltip container so hover shows the company
@@ -61,7 +61,7 @@ function LogoItem({ company, hidden = false }: { company: Company; hidden?: bool
     <span
       className="logo-tooltip shrink-0"
       data-tooltip={company.name}
-      aria-hidden={hidden || undefined}
+      aria-label={company.name}
     >
       {inner}
     </span>
@@ -97,11 +97,11 @@ function LogoItem({ company, hidden = false }: { company: Company; hidden?: bool
 
 export default function LogoStrip() {
   return (
-    <section aria-labelledby="background-strip" className="py-14 sm:py-16 border-y border-border/60">
+    <section className="pb-20 sm:pb-24">
       <div className="max-w-4xl mx-auto px-6 mb-8 text-center">
-        <h2 id="background-strip" className="text-xs text-subtle uppercase tracking-[0.2em]">
+        <p className="text-xs text-[#a1a1aa]/40 uppercase tracking-widest">
           Commercial background across
-        </h2>
+        </p>
       </div>
       {/*
         The mask uses overflow-x:hidden (via .marquee-mask) rather than
@@ -112,7 +112,7 @@ export default function LogoStrip() {
       <div className="marquee-mask">
         <div className="marquee-track flex items-center gap-12 sm:gap-16 w-max">
           {[...companies, ...companies].map((co, i) => (
-            <LogoItem key={`${co.name}-${i}`} company={co} hidden={i >= companies.length} />
+            <LogoItem key={`${co.name}-${i}`} company={co} />
           ))}
         </div>
       </div>

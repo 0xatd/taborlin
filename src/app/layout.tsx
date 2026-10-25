@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Fraunces, Inter } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './globals.css';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from './site';
@@ -8,13 +8,6 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
-});
-
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-fraunces',
-  axes: ['opsz', 'SOFT'],
 });
 
 export const metadata: Metadata = {
@@ -58,8 +51,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#07070c',
-  colorScheme: 'dark',
+  themeColor: '#fafaf8',
+  colorScheme: 'light',
 };
 
 export default function RootLayout({
@@ -68,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${fraunces.variable}`}>
+    <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased">
         <script
           type="application/ld+json"
@@ -83,6 +76,7 @@ export default function RootLayout({
               knowsAbout: ['AI agents', 'Applied AI', 'Software development', 'Data products'],
               sameAs: [
                 'https://github.com/0xatd',
+                'https://x.com/0xatd',
                 'https://cheaptokens.ai',
                 'https://champion.taborlin.co',
                 'https://soshi.taborlin.co',
