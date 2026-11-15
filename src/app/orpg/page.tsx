@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "ORPG",
   description: "An original dark-fantasy world in the making. Explore its first places in observer mode.",
   alternates: { canonical: "https://taborlin.co/orpg" },
-  openGraph: { title: "ORPG — A world before its heroes", description: "Explore an original dark-fantasy world in the making.", url: "https://taborlin.co/orpg", images: ["/orpg/world-preview.png"] },
+  openGraph: { title: "ORPG — A world before its heroes", description: "Explore an original dark-fantasy world in the making.", url: "https://taborlin.co/orpg", images: ["/orpg/greyhaven-harbor.png"] },
 };
 
 export default function OrpgPage() {
@@ -24,13 +24,13 @@ export default function OrpgPage() {
         <p className="mt-3 text-xs text-zinc-500">Opens the game menu. No account needed to explore.</p>
       </div>
       <figure>
-        <Image src="/orpg/world-preview.png" alt="Current observer prototype: a small timber-framed village among trees, seen from above." width={1440} height={900} priority className="h-auto w-full rounded-lg border border-white/10" />
-        <figcaption className="mt-3 text-xs text-zinc-500">The current prototype · South Hamlet</figcaption>
+        <Image src="/orpg/greyhaven-harbor.png" alt="Greyhaven harbor-town prototype, with districts, streets, warehouses, a keep and waterfront." width={1440} height={900} priority className="h-auto w-full rounded-lg border border-white/10" />
+        <figcaption className="mt-3 text-xs text-zinc-500">The current prototype · Greyhaven</figcaption>
       </figure>
     </section>
     <section className="grid gap-8 border-t border-white/10 pt-8 md:grid-cols-2">
-      <div><h2 className="text-lg font-medium">Explore now</h2><p className="mt-3 max-w-lg leading-relaxed text-zinc-400">Move the observer camera through three early places: a village, a wilderness road, and a cave. Open the atlas to see how they fit into the larger world. These are rough, authored spaces—not yet a living simulation.</p></div>
-      <div><h2 className="text-lg font-medium">Building toward</h2><p className="mt-3 max-w-lg leading-relaxed text-zinc-400">Inhabited settlements, working NPCs, trade routes, patrols, and competing houses. First, a world worth watching. Later, hero-led exploration and responsive tactical combat within it.</p></div>
+      <div><h2 className="text-lg font-medium">Explore now</h2><p className="mt-3 max-w-lg leading-relaxed text-zinc-400">Explore Greyhaven as an observer or walking hero. Follow dockworkers and traders moving fish from the quay to the market, watch residents collect food, and inspect the town’s buildings. The town saves on your device and pauses when the tab is hidden; it is not yet a shared online world.</p></div>
+      <div><h2 className="text-lg font-medium">Building toward</h2><p className="mt-3 max-w-lg leading-relaxed text-zinc-400">A functioning world of connected settlements, industries, daily routines and competing houses. Greyhaven’s original layout draws on medieval Lübeck. Broader economies, shared persistence, enterable buildings and responsive tactical combat are still ahead.</p></div>
     </section>
     <footer className="mt-12 text-xs text-zinc-500">A Taborlin world-building experiment. Expanding one connected place at a time.</footer>
   </main>;
