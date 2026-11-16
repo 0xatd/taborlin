@@ -72,6 +72,17 @@ const work = [
     description:
       'Soshi helps Taborlin turn product work into social content, build a consistent publishing calendar, track what performs, and double down on the formats that grow audience, leads, and attention.',
   },
+  {
+    title: 'ORPG',
+    label: 'A world before its heroes',
+    url: 'https://orpg.taborlin.co',
+    status: 'Early playtest',
+    metric: 'Playable in the browser, no account',
+    image: '/orpg/greyhaven-card.jpg',
+    imageAlt: 'Greyhaven, a harbor town of timber houses, a market square, and a church',
+    description:
+      'An original dark-fantasy world in early playtest. Explore Greyhaven in the browser with no account. It saves on this device and is not yet a shared online world.',
+  },
 ];
 
 const capabilities = [
@@ -184,8 +195,7 @@ function Work() {
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-[#fafafa] mb-2">Products & Tools</h2>
           <p className="text-sm text-[#a1a1aa] max-w-2xl">
-            Live products and working tools from Taborlin: AI infrastructure, sales memory,
-            and audience growth.
+            Live products and working tools from Taborlin, and an original game in early playtest.
           </p>
         </div>
         <div className="space-y-5">

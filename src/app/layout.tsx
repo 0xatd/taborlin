@@ -53,6 +53,7 @@ export default function RootLayout({
                 'https://soshi.taborlin.co',
                 'https://spatix.io',
                 'https://onchain-wallets-dashboard.vercel.app',
+                'https://orpg.taborlin.co',
               ],
             }),
           }}
