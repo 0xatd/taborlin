@@ -1,0 +1,287 @@
+.orpg {
+  --ink: #f4ecdf;
+  --ink-soft: #d7e0d8;
+  --muted: #c5d0c8;
+  --line: rgba(232, 214, 176, 0.22);
+  --bg: #0c1513;
+  --gold: #c4a15a;
+  --gold-ink: #1a140c;
+  --gold-hover: #d4b56e;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+}
+
+.orpg ::selection {
+  background: rgba(196, 161, 90, 0.45);
+  color: var(--ink);
+}
+
+.orpg a:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.hero {
+  position: relative;
+  background: var(--bg);
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+  padding: 2.75rem 1.25rem 1.75rem;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1 {
+  margin: 0.85rem 0 0;
+  color: var(--ink);
+  font-size: clamp(3.4rem, 16vw, 4.75rem);
+  font-weight: 500;
+  line-height: 0.88;
+  letter-spacing: 0.12em;
+}
+
+.promise {
+  margin: 1.15rem 0 0;
+  max-width: 18ch;
+  color: var(--ink);
+  font-size: clamp(1.35rem, 4.6vw, 1.65rem);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.place {
+  margin: 0.85rem 0 0;
+  max-width: 34ch;
+  color: var(--ink-soft);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.15rem;
+  margin-top: 1.6rem;
+}
+
+.play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.65rem 1.2rem;
+  border-radius: 2px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.play:hover {
+  background: var(--gold-hover);
+}
+
+.facts {
+  flex: 1 1 16rem;
+  margin: 0;
+  max-width: 36ch;
+  color: var(--muted);
+  font-size: 0.975rem;
+  line-height: 1.45;
+}
+
+.hero-media picture {
+  display: block;
+}
+
+.hero-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sheet {
+  padding: 3.25rem 1.25rem 0;
+}
+
+.sheet h2 {
+  margin: 0 0 1rem;
+  color: var(--ink);
+  font-size: 1.65rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.controls {
+  margin: 0;
+  max-width: 46rem;
+}
+
+.controls div {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.2rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.controls dt,
+.controls dd {
+  margin: 0;
+}
+
+.controls dt {
+  color: var(--ink);
+  font-size: 1.02rem;
+}
+
+.controls dd {
+  color: var(--ink-soft);
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+
+.modes {
+  max-width: 62ch;
+  margin: 1.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.build {
+  display: grid;
+  gap: 2.25rem;
+  max-width: 46rem;
+  padding-bottom: 3.5rem;
+}
+
+.build ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.build li {
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.foot {
+  padding: 0.35rem 1.25rem 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 0.975rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.foot a:hover {
+  color: var(--ink);
+}
+
+@media (min-width: 520px) {
+  .controls div {
+    grid-template-columns: 10.5rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+  }
+}
+
+@media (min-width: 900px) {
+  .hero {
+    min-height: 100svh;
+  }
+
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: min(34rem, 40vw);
+    min-height: 100svh;
+    padding: 4rem 1.75rem 4rem clamp(1.5rem, 3.6vw, 4.25rem);
+  }
+
+  .hero-copy::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 100%;
+    width: 5.5rem;
+    background: linear-gradient(90deg, var(--bg) 0%, rgba(12, 21, 19, 0.45) 34%, rgba(12, 21, 19, 0) 100%);
+    pointer-events: none;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(4.5rem, 6.4vw, 6.75rem);
+    letter-spacing: 0.11em;
+  }
+
+  .promise {
+    font-size: clamp(1.45rem, 2vw, 1.85rem);
+  }
+
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-media picture,
+  .hero-media img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-media img {
+    object-fit: cover;
+    object-position: 58% 40%;
+  }
+
+  .sheet {
+    padding: 4.5rem clamp(1.5rem, 3.6vw, 4.25rem) 0;
+  }
+
+  .build {
+    padding-bottom: 4.5rem;
+  }
+
+  .foot {
+    padding: 0.5rem clamp(1.5rem, 3.6vw, 4.25rem) 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .play {
+    transition: none;
+  }
+}
